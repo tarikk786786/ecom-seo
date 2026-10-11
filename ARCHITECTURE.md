@@ -36,6 +36,13 @@
 No framework should be installed until the repository is audited for existing code and dependencies. This architecture is a plan, not a claim that any component exists.
 
 
+## Implemented foundation (web dashboard)
+- Monorepo: npm workspaces at the root; `apps/web-dashboard` is the Next.js 16 App Router dashboard. `.env.example`/`.env.local` live at the repository root and are loaded by `next.config.ts` via `@next/env` (forced reload, because Next caches its first env load from the app directory).
+- Next.js 16 renamed Middleware to Proxy, so session refresh lives in `apps/web-dashboard/proxy.ts` (no `middleware.ts`). It calls `updateSession()` in `utils/supabase/proxy.ts`, which calls `supabase.auth.getClaims()` and applies refreshed cookies plus the `Cache-Control`/`Expires`/`Pragma` headers that `@supabase/ssr` passes to `setAll`. The matcher excludes `_next/static`, `_next/image` and static files but includes API routes.
+- The proxy is not an authorization layer. Protected pages and Server Actions call `getCurrentUser()` (`lib/auth.ts`, `getClaims()`), never `getSession()`.
+- Server Supabase clients are created per request. The browser client relies on `createBrowserClient`'s singleton.
+- Only the publishable key is used by the app. `lib/env.ts` rejects secret/service-role keys; `scripts/scan-secrets.mjs` checks tracked files and built client bundles.
+
 ## Keyword research UI boundaries
 - The dashboard presentation layer should be provider-agnostic and use typed normalized records plus provider-status metadata.
 - Query controls and tabs live in the web dashboard and may be shared with the Chrome extension where useful, without coupling UI to a specific provider.

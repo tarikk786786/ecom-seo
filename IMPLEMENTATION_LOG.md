@@ -17,3 +17,12 @@
 - Spec includes provider toolbar, unified query controls, suggestions/questions/prepositions/related tabs, metrics cards, historical chart, supported device split, dense results table, sorting/filtering/bulk actions, AI evidence panel, provider statuses, responsive UX, and explicit acceptance criteria.
 - Updated BUILD_PROGRESS.md to make the screenshot-guided dashboard the next implementation task and FEATURE_STATUS.md to keep the UI marked NOT STARTED until code and preview are verified.
 - This change updates documentation only; no application UI, provider integration, test, or preview is claimed as implemented.
+
+## 2026-10-11 — Next.js + Supabase foundation
+
+- Audited the repository (documentation only, no code). Created the npm-workspaces root and `apps/web-dashboard` following the planned boundaries in ARCHITECTURE.md.
+- Pinned: next 16.4.0, react/react-dom 19.3.0, @supabase/ssr 0.12.7, @supabase/supabase-js 2.117.3, tailwindcss + @tailwindcss/postcss 4.3.3, typescript 5.9.3 (TypeScript 7 not used: Next's type-check integration is not verified against it), eslint 10.12.0 + eslint-config-next 16.4.0, vitest 5.0.3, server-only 0.0.1, @next/env 16.4.0.
+- Followed the current Supabase SSR guide (setAll receives cache headers; getClaims for verification) and the Next.js 16 Proxy docs. The documented `response.cookies.setAll` does not exist on Next 16.4 `ResponseCookies`; cookies are copied individually instead.
+- Issues found and fixed during verification: `.env.local` written by PowerShell with a UTF-8 BOM was not parsed; root env file ignored because `@next/env` caches its first load (fixed with forceReload); pages prerendered as static when Supabase was unconfigured (fixed with `connection()` in `getCurrentUser`); endpoint reachability was labelled "Connected" (now "Reachable").
+- `todos` table: not assumed. The diagnostics query it read-only and report not found / permission denied / visible row count. No migration was applied.
+- Supabase publishable key was not available in this environment, so live Auth/Data API/sign-in verification is blocked.

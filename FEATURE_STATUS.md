@@ -14,8 +14,11 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Sortable/filterable keyword table and exports | NOT STARTED | |
 | Chrome Manifest V3 extension | NOT STARTED | |
 | Popup and side panel | NOT STARTED | |
-| Responsive web dashboard | NOT STARTED | |
-| API and health endpoint | NOT STARTED | |
+| Responsive web dashboard | TESTED | Next.js app in apps/web-dashboard; build passes; desktop preview inspected in browser |
+| Supabase SSR clients and session proxy | TESTED | Unit tests for proxy pass-through and cookie/header copying; live session refresh BLOCKED on publishable key |
+| Supabase connection diagnostics | TESTED | 17 mocked classification tests; live endpoint reachability verified; Auth/DB checks BLOCKED on publishable key |
+| Email authentication (sign in/up/out, protected /account) | IMPLEMENTED | Unauthenticated /account redirect verified; live sign-in BLOCKED on publishable key |
+| API and health endpoint | IMPLEMENTED | /api/health/supabase |
 | Shared types and validation | NOT STARTED | |
 | PostgreSQL schema and migrations | NOT STARTED | |
 | Authentication and tenant isolation | NOT STARTED | |
@@ -42,5 +45,5 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Docker/deployment/backup assets | NOT STARTED | |
 | Unit/integration/e2e/security tests | NOT STARTED | |
 | CI build/security workflow | NOT STARTED | |
-| Live preview | NOT STARTED | Runtime not yet configured |
+| Live preview | IMPLEMENTED | Local only (`npm run dev` / `npm start`, http://localhost:3000); no hosted preview |
 | Production deployment verification | NOT STARTED | |

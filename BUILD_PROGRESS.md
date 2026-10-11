@@ -17,21 +17,29 @@
 
 - The user's keyword research screenshot is now the primary UX reference. Full feature and acceptance requirements are in docs/KEYWORD_RESEARCH_UI_SPEC.md.
 
+## Cycle 2026-10-11 — Next.js + Supabase foundation (verified locally)
+- npm-workspaces monorepo root; dashboard app at `apps/web-dashboard` (Next.js 16.4.0 App Router, React 19.3.0, Tailwind 4.3.3, TypeScript 5.9.3).
+- Supabase SSR helpers (`utils/supabase/client.ts`, `server.ts`, `proxy.ts`) and root `proxy.ts` (Next 16 Proxy convention) using `@supabase/ssr` 0.12.7 / `@supabase/supabase-js` 2.117.3.
+- Runtime env validation (`lib/env.ts`) with a setup banner; refuses `sb_secret_`/service_role keys.
+- Live diagnostics endpoint `/api/health/supabase` separating configuration, endpoint, Auth, Data API, `todos` table and current user.
+- Email sign-in/sign-up/sign-out (Server Actions), `/auth/confirm`, protected `/account`.
+- Checks run: `npm run typecheck` (pass), `npm run lint` (pass), `npm test` (4 files, 33 tests pass), `npm run build` (pass), `npm run secrets:scan` (pass).
+- Live check against https://fxwelcidbobizssrewip.supabase.co: endpoint reachable (HTTP 401 without key, ~0.5 s). Auth/database checks not run: publishable key not available in this environment.
+- Preview: production server `npm start` at http://localhost:3000, inspected in a real browser.
+
 ## Not yet implemented
-- Application source code and dependency manifests.
 - Chrome extension UI and build pipeline.
-- API/backend/database/workers.
-- Live provider integrations.
+- API/backend workers, scheduler, provider integrations.
 - AI orchestration and evidence-grounded analyses.
-- Authentication/tenant isolation.
+- Tenant data model, RLS-backed tables.
 - Server manager and deployment assets.
 - Billing, paid entitlements and licensing.
-- Automated tests and CI.
-- Live preview and deployment.
+- CI workflow; end-to-end browser tests.
+- Hosted deployment.
 
 ## Blockers
+- Supabase publishable key not present in the development environment: Auth, Data API and sign-in cannot be verified live until `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is set in `.env.local`.
 - No provider credentials or API approvals supplied yet.
-- No code runtime/browser preview has been executed during repository initialization.
 - Marketplace API availability must be verified per connector during implementation.
 
 ## Next recommended task

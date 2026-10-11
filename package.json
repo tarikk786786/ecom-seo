@@ -1,0 +1,22 @@
+{
+  "name": "ecom-seo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Ecom SEO — Trend Intelligence AI (monorepo root)",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @ecom-seo/web-dashboard",
+    "build": "npm run build -w @ecom-seo/web-dashboard",
+    "start": "npm run start -w @ecom-seo/web-dashboard",
+    "lint": "npm run lint -w @ecom-seo/web-dashboard",
+    "typecheck": "npm run typecheck -w @ecom-seo/web-dashboard",
+    "test": "npm run test -w @ecom-seo/web-dashboard",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "secrets:scan": "node scripts/scan-secrets.mjs"
+  }
+}

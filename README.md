@@ -39,6 +39,18 @@ For each NEXT cycle: implement, test, launch or refresh the preview, update prog
 - Support self-hosted deployment through documented environment configuration, health checks, backups, migrations, and recovery procedures.
 - Make paid features enforceable by server-side entitlements, not frontend-only switches.
 
+## Running locally
+
+Requires Node.js 20.9 or newer.
+
+```bash
+npm install
+cp .env.example .env.local   # then set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+npm run dev                  # http://localhost:3000
+npm run check                # typecheck, lint, unit tests, production build
+npm run secrets:scan
+```
+
 ## Project status
 
-This repository was empty when initialized. This README establishes the project workflow; it does not claim the application, API integrations, live preview, or tests have been implemented.
+See `BUILD_PROGRESS.md` and `FEATURE_STATUS.md` for what is implemented and verified. Provider integrations are only marked connected after a live test with authorized credentials.
