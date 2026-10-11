@@ -53,3 +53,6 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Automatic requirements discovery prompt | IMPLEMENTED | `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md`; documented but not yet executed as a complete API audit |
 | API requirements matrix | NOT STARTED | To be generated/populated during discovery run |
 | Requirements checklist | NOT STARTED | To be generated/populated during discovery run |
+
+| Cursor persistent project rule | IMPLEMENTED | `.cursor/rules/ecom-seo.mdc`; committed in repository; Cursor workspace not independently tested here |
+| Cursor API discovery execution prompt | IMPLEMENTED | `docs/CURSOR_AGENT_RUN_PROMPT.md`; prompt saved, not yet executed in Cursor |
