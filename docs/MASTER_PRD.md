@@ -179,3 +179,24 @@ If credentials, approvals, or runtime access are missing, complete independent w
 ## 12. Definition of done
 
 A feature is complete only when code is implemented, relevant tests actually run, required live integration is verified with authorized credentials, source evidence is traceable, the relevant preview or reproducible evidence is supplied, documentation and status files are current, and the verified change is pushed to GitHub. Mark unresolved work BLOCKED instead of pretending it works.
+
+
+## 13. Screenshot-guided all-platform keyword research workspace
+
+The primary keyword-research UI must follow the user's reference screenshot's functional structure. The full design and acceptance specification is maintained in [docs/KEYWORD_RESEARCH_UI_SPEC.md](./KEYWORD_RESEARCH_UI_SPEC.md).
+
+Required workspace features:
+- Compact source/provider icon row with genuine provider connection states.
+- One query bar with provider selection, geography, language, date range and supported filters.
+- Tabs for Keyword Suggestions, Questions, Prepositions and Related Keywords, plus optional autocomplete, long-tail, intent, clustering and marketplace views.
+- Metric cards for total keywords, source-compatible search volume, trend change, CPC/bid ranges, competition, successful provider count and data freshness.
+- Historical trend charts using actual source observations; relative interest must never be represented as absolute search volume.
+- Desktop/mobile/tablet distribution only when a real source provides this breakdown.
+- A sortable, filterable, selectable keyword table with volume, trend, sparkline, CPC/bid ranges, competition, source, locale, timestamps and evidence links when available.
+- Settings for sources, geography, language, date range, display metrics, columns, currency, exports and AI usage.
+- Bulk keyword lists, comparisons, clusters, export and evidence-grounded AI analysis.
+- Desktop, tablet and mobile layouts; loading, empty, disconnected, partial-failure, rate-limited and stale-data states.
+
+The workspace must query actual configured providers and show per-provider success/failure. It must not manufacture volume, CPC, competition, device share, ranking, source URLs or chart history. The UI may use clearly labeled fixtures during local UI development, but fixture data must be isolated from production queries. Metrics with incompatible definitions are displayed separately instead of incorrectly aggregated.
+
+This visual direction does not remove the platform-access rule: every source requires its actual supported API, approved access, permitted feed or licensed integration. “All platforms” means all eligible configured connectors, not guaranteed universal access.

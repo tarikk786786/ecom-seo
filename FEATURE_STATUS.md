@@ -6,6 +6,12 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 |---|---|---|
 | Repository workflow documentation | IMPLEMENTED | README.md committed to main |
 | Master PRD | IMPLEMENTED | docs/MASTER_PRD.md |
+| Screenshot-guided keyword research UI specification | IMPLEMENTED | docs/KEYWORD_RESEARCH_UI_SPEC.md; requirements documented only, UI not yet built |
+| Screenshot-guided keyword research dashboard | NOT STARTED | Must match reference hierarchy; no app code yet |
+| Provider icon/status toolbar | NOT STARTED | Must reflect actual connector status |
+| Search suggestions/questions/prepositions/related tabs | NOT STARTED | Must distinguish real provider results vs AI expansions |
+| Keyword metrics and historical charts | NOT STARTED | Must use actual values and explicit metric semantics |
+| Sortable/filterable keyword table and exports | NOT STARTED | |
 | Chrome Manifest V3 extension | NOT STARTED | |
 | Popup and side panel | NOT STARTED | |
 | Responsive web dashboard | NOT STARTED | |

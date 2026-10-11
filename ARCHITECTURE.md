@@ -34,3 +34,11 @@
 - CI: GitHub Actions, build/test plus dependency and secret scanning.
 
 No framework should be installed until the repository is audited for existing code and dependencies. This architecture is a plan, not a claim that any component exists.
+
+
+## Keyword research UI boundaries
+- The dashboard presentation layer should be provider-agnostic and use typed normalized records plus provider-status metadata.
+- Query controls and tabs live in the web dashboard and may be shared with the Chrome extension where useful, without coupling UI to a specific provider.
+- Each metric carries its source, unit, geography, period and freshness. Aggregation is permitted only when the compared measurements are compatible.
+- Chart components render only actual records or visibly labeled test fixtures; production paths must not fall back to fake sample values.
+- See docs/KEYWORD_RESEARCH_UI_SPEC.md for the full UI contract and acceptance criteria.

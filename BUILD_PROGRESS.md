@@ -15,6 +15,8 @@
 - Documentation history verified on main through commit 9d2b2146b722edc836e75a2c0271e82d60d938a6.
 - GitHub contents API confirmed the root files and docs directory; the master PRD was fetched from main and contains approximately 12 KB of product requirements.
 
+- The user's keyword research screenshot is now the primary UX reference. Full feature and acceptance requirements are in docs/KEYWORD_RESEARCH_UI_SPEC.md.
+
 ## Not yet implemented
 - Application source code and dependency manifests.
 - Chrome extension UI and build pipeline.
@@ -33,4 +35,4 @@
 - Marketplace API availability must be verified per connector during implementation.
 
 ## Next recommended task
-Create the minimal runnable monorepo foundation with a Chrome Manifest V3 extension and dashboard, typed shared package, API health endpoint, tests, and GitHub Actions build checks. Preserve modular boundaries and show a real preview/test evidence before claiming functionality.
+Implement the screenshot-guided keyword research dashboard in the existing repo: first audit the repository, then build a runnable Next.js/App Router dashboard (integrating Supabase SSR if appropriate), responsive provider toolbar/search controls/query tabs/metric panels/charts/table with honest empty and connection states. Add tests, launch a real preview, and only then integrate the first authorized live keyword provider. Do not hardcode screenshot metrics as real data.
