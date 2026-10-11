@@ -13,6 +13,8 @@ export type ProviderContext = {
 export type ProviderSearchResult = {
   records: KeywordRecord[];
   seedHistory?: History;
+  /** Record that represents the query itself (e.g. the matching article or keyword idea). */
+  seedRecordId?: string;
   devices?: DeviceDistribution;
   /** Shown to the user, e.g. "8 of 10 articles returned pageviews". */
   message?: string;

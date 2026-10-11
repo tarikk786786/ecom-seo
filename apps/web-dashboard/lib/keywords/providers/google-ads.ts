@@ -227,6 +227,7 @@ export const googleAds: KeywordProvider = {
     return {
       records,
       seedHistory: seed?.history,
+      seedRecordId: seed?.id,
       message: `${records.length} keyword ideas${total && total > records.length ? ` (first page of ${total})` : ""}${currency ? `; bids in ${currency}` : ""}.`,
     };
   },

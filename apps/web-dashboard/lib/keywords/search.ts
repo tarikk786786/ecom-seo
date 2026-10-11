@@ -121,6 +121,7 @@ export async function runKeywordSearch(
         response.seedHistory = { ...result.seedHistory, provider: outcome.provider };
       }
     }
+    if (result.seedRecordId) response.seeds = { ...response.seeds, [outcome.provider]: result.seedRecordId };
     if (result.devices && !response.devices) response.devices = result.devices;
   }
 

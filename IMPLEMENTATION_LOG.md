@@ -57,3 +57,24 @@
 - Added `docs/CURSOR_AGENT_RUN_PROMPT.md`, tailored for Cursor Agent to inspect the existing code, continue API discovery, implement testable integrations, show preview evidence, update tracking documents, and push verified cycles.
 - Linked both files from README.md and recorded status.
 - Verified that the files are on the repository's main branch. The prompt has not been run in Cursor during this documentation operation; no Cursor build/test/preview is claimed here.
+
+## 2026-10-11 — API requirements and provider adapters (commit 60d6a66)
+
+- Researched current official documentation for search, marketplace, social, news, AI and billing APIs. The findings are in `docs/API_REQUIREMENTS_MATRIX.md`, `docs/REQUIREMENTS_CHECKLIST.md` and `docs/API_SETUP_GUIDE.md`. `.env.example` lists placeholder names only.
+- Hardened the provider HTTP layer:
+  - POST requests, and retries only for network errors and 5xx responses.
+  - 401/403 now map to ACCESS_REQUIRED.
+  - Provider error codes are sanitised, and secrets are redacted from messages.
+  - OAuth token cache and throttles for providers with mandated rate limits.
+- Added adapters for Google Ads Keyword Planner (v25), YouTube Data API, Amazon Creators API, Flipkart Affiliate, eBay Browse, Etsy v3 and GDELT news. The credentialed adapters stay NOT_CONFIGURED until credentials exist and a live check succeeds.
+- Added 41 contract tests with mocked fetch, covering valid, empty, malformed, unauthorized, quota/rate-limit and timeout responses.
+- Live results:
+  - Wikipedia, Stack Exchange, Hacker News, Google Trends RSS and GDELT returned data.
+  - GDELT returned 19 headlines and 17 days of coverage for "air fryer". It also returned intermittent 429s, which the dashboard shows as RATE_LIMITED.
+  - No credentialed provider could be live tested because no credentials are configured.
+
+## 2026-10-11 — Product polish
+
+- Replaced the "Trend Intelligence AI" subtitle with "Keyword & trend research", and tightened the workspace copy and empty states.
+- The search-volume card now shows real Google Ads figures (average monthly searches, CPC, competition) when available, instead of a fixed placeholder.
+- Providers identify their seed record, so each summary card reads from the correct source.

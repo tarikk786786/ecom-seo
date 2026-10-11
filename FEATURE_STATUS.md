@@ -27,7 +27,7 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Google Ads keyword planning | BLOCKED | Adapter implemented and contract-tested (v25 ideas, volume, history, competition, bids, CPC); needs developer token (Basic access) + OAuth to go live |
 | Google Search Console | NOT STARTED | Requires authorized site access |
 | YouTube integration | BLOCKED | Adapter implemented and contract-tested; needs YOUTUBE_API_KEY |
-| News/RSS/search providers | IN PROGRESS | Wikipedia, Stack Exchange, Hacker News live; GDELT adapter implemented (format verified live; GDELT rate-limited this run); Bing APIs retired |
+| News/RSS/search providers | IN PROGRESS | Wikipedia, Stack Exchange, Hacker News live; GDELT news live (coverage timeline and headlines; intermittent 429s handled); Bing APIs retired |
 | Unified e-commerce search | NOT STARTED | |
 | Amazon provider(s) | BLOCKED | Creators API adapter implemented and contract-tested; needs Associates eligibility + credentials. PA-API retired. SP-API (seller-only) documented |
 | Flipkart provider(s) | BLOCKED | Affiliate adapter implemented and contract-tested; needs credentials, current access unconfirmed. Seller API documented |

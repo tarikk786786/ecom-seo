@@ -164,7 +164,10 @@ export function KeywordWorkspace() {
   const tabCounts = useMemo(() => Object.fromEntries(TABS.map((t) => [t.id, allRows.filter((r) => inTab(r, t.id)).length])), [allRows]);
   const okOutcomes = response?.outcomes.filter((o) => o.status === "ok" || o.status === "empty") ?? [];
   const failedOutcomes = response?.outcomes.filter((o) => o.status !== "ok" && o.status !== "empty") ?? [];
-  const seedRecord = response?.seedHistory ? response.records.find((r) => r.provider === response.seedHistory!.provider && r.history?.label === response.seedHistory!.label) : undefined;
+  const seedFor = (provider: string) => (response?.seeds?.[provider] ? response.records.find((r) => r.id === response.seeds![provider]) : undefined);
+  const seedRecord = seedFor("wikipedia");
+  const adsSeed = seedFor("google-ads");
+  const adsMetric = (key: string) => adsSeed?.metrics.find((m) => m.key === key);
   const loading = search.status === "loading";
 
   const unsupported = (key: "country" | "language" | "window") => selectedProviders.filter((p) => p.implemented && !p.supports[key]).map((p) => p.name);
@@ -194,7 +197,7 @@ export function KeywordWorkspace() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">Keyword research</h1>
           <p className="mt-1 max-w-3xl text-sm text-zinc-400">
-            Search connected platforms at once. Every keyword keeps its source, metric definition and timestamp; metrics from different sources are never added together.
+            Research a keyword across search, marketplaces, video, news and communities in one pass. Each result shows where it came from and when, and figures from different sources are kept separate.
           </p>
         </div>
         <button type="button" onClick={() => setSettingsOpen(true)} className={btn}>
@@ -318,7 +321,7 @@ export function KeywordWorkspace() {
                 </button>
               ))}
               <button type="button" onClick={() => setHistory([])} className="text-zinc-600 hover:text-zinc-300">
-                clear
+                Clear history
               </button>
             </span>
           )}
@@ -359,7 +362,7 @@ export function KeywordWorkspace() {
               )}
             </div>
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
-              <p className={`mb-2 text-xs font-medium ${failedOutcomes.length ? "text-rose-300" : "text-zinc-500"}`}>Failed or skipped ({failedOutcomes.length})</p>
+              <p className={`mb-2 text-xs font-medium ${failedOutcomes.length ? "text-rose-300" : "text-zinc-500"}`}>No results ({failedOutcomes.length})</p>
               {failedOutcomes.length ? (
                 <ul className="space-y-1 text-xs">
                   {failedOutcomes.map((o) => (
@@ -370,7 +373,7 @@ export function KeywordWorkspace() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-zinc-500">All selected providers responded.</p>
+                <p className="text-xs text-zinc-500">Every selected source responded.</p>
               )}
             </div>
           </section>
@@ -390,12 +393,20 @@ export function KeywordWorkspace() {
               muted={!seedRecord?.trend}
               sub={seedRecord?.trend ? seedRecord.trend.window : "Needs comparable history"}
             />
-            <MetricCard
-              label="Search volume · CPC"
-              value="Not provided"
-              muted
-              sub={byId["google-ads"] ? `Requires Google Ads Keyword Planner (${STATE_STYLE[byId["google-ads"].state].label.toLowerCase()})` : "Requires an ads keyword provider"}
-            />
+            {adsMetric("avg_monthly_searches") ? (
+              <MetricCard
+                label="Avg. monthly searches"
+                value={formatMetric(adsMetric("avg_monthly_searches")!)}
+                sub={[adsMetric("avg_cpc") && `CPC ${formatMetric(adsMetric("avg_cpc")!)}`, adsMetric("competition_index") && `Competition ${formatMetric(adsMetric("competition_index")!)}`, "Google Ads"].filter(Boolean).join(" · ")}
+              />
+            ) : (
+              <MetricCard
+                label="Search volume · CPC"
+                value="Not available"
+                muted
+                sub={byId["google-ads"] ? `Google Ads Keyword Planner: ${STATE_STYLE[byId["google-ads"].state].label.toLowerCase()}` : "Needs a search-ads data source"}
+              />
+            )}
             <MetricCard label="Fetched" value={new Date(response.fetchedAt).toLocaleTimeString()} sub={`${countryName(response.request.country)} · ${languageName(response.request.language)} · ${TIME_WINDOWS.find((w) => w.id === response.request.window)!.label}`} />
           </section>
 
@@ -405,7 +416,7 @@ export function KeywordWorkspace() {
               {response.seedHistory ? (
                 <HistoryChart history={response.seedHistory} providerName={providerNames[response.seedHistory.provider] ?? response.seedHistory.provider} />
               ) : (
-                <p className="text-xs text-zinc-500">No selected source returned historical data for this query. Search volume history requires Google Ads access; relative interest requires Google Trends API access.</p>
+                <p className="text-xs text-zinc-500">None of the selected sources returned history for this keyword. Monthly search history appears once Google Ads is connected.</p>
               )}
             </div>
             <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">

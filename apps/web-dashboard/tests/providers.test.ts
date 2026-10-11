@@ -60,6 +60,13 @@ describe("http hardening", () => {
     await expect(requestText("https://x.test", { fetchImpl: hanging, timeoutMs: 30 })).rejects.toMatchObject({ category: "timeout" });
   });
 
+  it("describes network failures in plain language", async () => {
+    const f: FetchLike = async () => {
+      throw new TypeError("fetch failed");
+    };
+    await expect(requestText("https://api.example.test/x", { fetchImpl: f })).rejects.toThrow("could not reach api.example.test (network error)");
+  });
+
   it("rejects malformed JSON as a parse error", async () => {
     const f: FetchLike = async () => new Response("<html>");
     await expect(requestJson("https://x.test", { fetchImpl: f })).rejects.toMatchObject({ category: "parse" });
@@ -191,6 +198,7 @@ describe("Google Ads keyword planner", () => {
     expect(outcome.message).toContain("first page of 450");
     expect(res.records.find((r) => r.keyword === "how to clean air fryer")!.category).toBe("question");
     expect(res.seedHistory?.unit).toBe("searches");
+    expect(res.records.find((r) => r.id === res.seeds?.["google-ads"])?.keyword).toBe("air fryer");
     const call = f.calls.find((c) => c.url.endsWith(":generateKeywordIdeas"))!;
     expect(call.url).toBe("https://googleads.googleapis.com/v25/customers/1234567890:generateKeywordIdeas");
     const h = call.init!.headers as Record<string, string>;

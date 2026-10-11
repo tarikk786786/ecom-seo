@@ -239,6 +239,7 @@ export const wikipedia: KeywordProvider = {
     return {
       records,
       seedHistory,
+      seedRecordId: seedIdx >= 0 ? records[seedIdx]?.id : undefined,
       devices: device,
       message: failed ? `Pageviews unavailable for ${failed} of ${titles.length} articles; their metrics are left empty.` : undefined,
     };

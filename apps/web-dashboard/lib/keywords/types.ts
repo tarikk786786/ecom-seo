@@ -118,6 +118,8 @@ export type KeywordSearchResponse = {
   outcomes: ProviderOutcome[];
   /** Seed-level evidence (chart and device split) from the first provider that supplies it. */
   seedHistory?: History & { provider: string };
+  /** Provider id → id of the record that represents the query in that provider's results. */
+  seeds?: Record<string, string>;
   devices?: DeviceDistribution;
 };
 

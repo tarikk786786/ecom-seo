@@ -40,7 +40,7 @@ Tracks the API discovery and integration run (`docs/AUTO_REQUIREMENT_DISCOVERY_P
 - [x] YouTube Data API adapter. **Blocked: `YOUTUBE_API_KEY`**
 - [x] eBay Browse adapter. **Blocked: `EBAY_CLIENT_ID`/`EBAY_CLIENT_SECRET`**
 - [x] Etsy v3 adapter. **Blocked: Etsy app approval and keys**
-- [x] GDELT news adapter (no key). Format verified live; GDELT was returning 429 during this run
+- [x] GDELT news adapter (no key), live tested in the dashboard. GDELT returns intermittent 429s, which are handled with a cooldown
 - [ ] Walmart (seller-only), Search Console (own site), Shopify/WooCommerce (own store): need per-user OAuth/connect flows
 - [ ] Reddit (commercial agreement), X (paid credits), Pinterest/Instagram/TikTok (approvals): access blockers documented
 

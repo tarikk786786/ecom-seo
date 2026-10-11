@@ -69,7 +69,8 @@ async function attempt(url: string, opts: RequestOptions): Promise<string> {
     if (err instanceof ProviderHttpError) throw err;
     if (timedOut) throw new ProviderHttpError(`timed out after ${timeoutMs} ms`, "timeout");
     if (opts.signal?.aborted) throw new ProviderHttpError("cancelled", "cancelled");
-    throw new ProviderHttpError(err instanceof Error ? err.message : String(err), "network");
+    const raw = err instanceof Error ? err.message : String(err);
+    throw new ProviderHttpError(/fetch failed|ECONNRESET|ENOTFOUND|ETIMEDOUT|socket/i.test(raw) ? `could not reach ${new URL(url).host} (network error)` : raw, "network");
   } finally {
     clearTimeout(timer);
     opts.signal?.removeEventListener("abort", onAbort);

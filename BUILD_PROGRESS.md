@@ -39,7 +39,15 @@
 - Official-source research recorded in `docs/API_REQUIREMENTS_MATRIX.md` (search/SEO, e-commerce incl. India, social/news, AI/billing/deploy), `docs/REQUIREMENTS_CHECKLIST.md` and `docs/API_SETUP_GUIDE.md`. `.env.example` has placeholders only.
 - Hardened provider HTTP layer: POST support, bounded retries with backoff (network/5xx only), `auth` error category (401/403 → ACCESS_REQUIRED), sanitised provider error codes, secret/bearer redaction, OAuth token cache, process-level throttles.
 - New adapters: Google Ads API v25 Keyword Planner (volume, monthly history, competition, bids, CPC), YouTube Data API v3, Amazon Creators API, Flipkart Affiliate, eBay Browse, Etsy v3 (all IMPLEMENTED_BUT_CREDENTIALS_MISSING) and GDELT DOC 2.0 news (no key).
-- Checks: typecheck pass, lint pass, `npm test` 6 files / 95 tests pass (40 new adapter contract tests), build pass. Live `/api/keywords/providers`: Wikipedia, Stack Exchange, Hacker News, Google Trends RSS CONNECTED; the six credentialed adapters NOT_CONFIGURED with the missing variable names; GDELT RATE_LIMITED (GDELT answered HTTP 429 to the app and to direct requests spaced 20–30 s apart; one direct request returned 200 earlier and confirmed the format).
+- Checks: typecheck pass, lint pass, `npm test` 6 files / 95 tests pass (40 new adapter contract tests), build pass. Live `/api/keywords/providers`: Wikipedia, Stack Exchange, Hacker News, Google Trends RSS CONNECTED; the six credentialed adapters NOT_CONFIGURED with the missing variable names; GDELT live. A dashboard search returned 19 headlines and 17 days of coverage; GDELT also returns intermittent 429s, which the dashboard shows as RATE_LIMITED.
+
+## Cycle 2026-10-11 — Product polish
+- Product subtitle and page title now read "Keyword & trend research".
+- Clearer workspace copy: header, empty states, coverage panel.
+- When Google Ads returns data for the seed keyword, the summary card shows real average monthly searches, CPC and competition. Otherwise it says "Not available" and names the connection state.
+- Providers now report their seed record (`seedRecordId`, exposed as `response.seeds`). The Wikipedia article-views card no longer depends on which source supplied the chart.
+- Network failures now read "could not reach <host> (network error)" instead of the runtime's raw "fetch failed".
+- Checks: typecheck pass, lint pass, 97 tests pass, build pass, secrets scan pass; browser preview verified at http://localhost:3000.
 
 ## Not yet implemented
 - Chrome extension UI and build pipeline.

@@ -6,7 +6,7 @@ import { readSupabaseEnv } from "@/lib/env";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Ecom SEO — Trend Intelligence AI", template: "%s · Ecom SEO" },
+  title: { default: "Ecom SEO — Keyword & trend research", template: "%s · Ecom SEO" },
   description: "Verified trend discovery, SEO keyword research and e-commerce product intelligence.",
 };
 
