@@ -36,3 +36,10 @@
 - Issues found and fixed during verification: a provider timeout was reported as a generic error because abort fired before the timeout rejection; "how to …" phrases were counted as prepositions; Wikipedia completions returned redirect titles with near-zero views (now resolved to the target article); the seed article could fall back to a loosely related full-text hit (now exact match or top completion only).
 - Supabase: user supplied the publishable key; written to the ignored root `.env.local` (not committed). The snippet's `middleware.ts` and `todos` page were not added: Next 16 uses the existing `proxy.ts`, and `public.todos` does not exist in the project.
 - Not run: `npx skills add supabase/agent-skills` (optional editor tooling, not part of the app).
+
+## 2026-10-11 — Official API integration inventory
+
+- Added docs/API_INTEGRATION_CATALOG.md with official API documentation links, selected direct endpoint patterns, expected credentials/access, capability limits, environment-variable placeholders, and an implementation sequence.
+- Covered core keyword metrics (Google Ads, Google Trends, DataForSEO, Semrush, Ahrefs, Microsoft Advertising), own-site analytics (Search Console/Bing Webmaster), Amazon Creators/SP-API, Flipkart Affiliate/Seller API, other marketplaces, Shopify/WooCommerce/Merchant Center, video/social/news, OpenAI, Supabase, and billing options.
+- Emphasized that product/keyword APIs differ in access and metrics; no provider is considered live simply because its docs are listed.
+- Documentation only; no new API credentials were created and no new live connector is claimed by this documentation commit.

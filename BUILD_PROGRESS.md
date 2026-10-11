@@ -54,3 +54,8 @@
 
 ## Next recommended task
 Add Supabase persistence for saved searches and keyword lists (migration with owner-only RLS, applied only with the user's approval), then the YouTube Data API adapter once `YOUTUBE_API_KEY` is provided, and the GDELT news adapter.
+
+
+## API sourcing catalog
+- Added a consolidated official API inventory in docs/API_INTEGRATION_CATALOG.md covering Google Ads/Trends, Search Console, Bing/Microsoft Ads, Amazon Creators/SP-API, Flipkart Affiliate/Seller API, marketplaces, social/video/news, DataForSEO/Semrush/Ahrefs, Supabase, OpenAI and billing APIs.
+- This inventory is documentation, not proof that credentials or access are available. Connector status remains based on live test evidence.

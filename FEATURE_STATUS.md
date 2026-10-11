@@ -47,3 +47,5 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | CI build/security workflow | NOT STARTED | |
 | Live preview | IMPLEMENTED | Local only (`npm run dev` / `npm start`, http://localhost:3000); no hosted preview |
 | Production deployment verification | NOT STARTED | |
+
+| Official API integration catalog | IMPLEMENTED | docs/API_INTEGRATION_CATALOG.md; documentation only; credentials and access must be verified per connector |

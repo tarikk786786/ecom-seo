@@ -200,3 +200,8 @@ Required workspace features:
 The workspace must query actual configured providers and show per-provider success/failure. It must not manufacture volume, CPC, competition, device share, ranking, source URLs or chart history. The UI may use clearly labeled fixtures during local UI development, but fixture data must be isolated from production queries. Metrics with incompatible definitions are displayed separately instead of incorrectly aggregated.
 
 This visual direction does not remove the platform-access rule: every source requires its actual supported API, approved access, permitted feed or licensed integration. “All platforms” means all eligible configured connectors, not guaranteed universal access.
+
+
+## 14. Official API inventory
+
+The consolidated provider links, direct endpoint patterns, credential requirements, access limitations and recommended integration sequence are documented in [docs/API_INTEGRATION_CATALOG.md](./API_INTEGRATION_CATALOG.md). Use that register as the initial API checklist and verify current official access requirements before implementing connectors.
