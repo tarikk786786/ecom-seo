@@ -59,3 +59,8 @@ Add Supabase persistence for saved searches and keyword lists (migration with ow
 ## API sourcing catalog
 - Added a consolidated official API inventory in docs/API_INTEGRATION_CATALOG.md covering Google Ads/Trends, Search Console, Bing/Microsoft Ads, Amazon Creators/SP-API, Flipkart Affiliate/Seller API, marketplaces, social/video/news, DataForSEO/Semrush/Ahrefs, Supabase, OpenAI and billing APIs.
 - This inventory is documentation, not proof that credentials or access are available. Connector status remains based on live test evidence.
+
+
+## Automatic requirements discovery
+- Added `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md` for official API research, scoped credential detection, pricing/quota verification, adapter implementation and live tests.
+- The prompt does not claim credentials, approvals or paid access can be automatically acquired; it records the exact blockers and requires preview/tests/GitHub verification.
