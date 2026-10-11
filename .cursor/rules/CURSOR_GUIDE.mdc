@@ -1,0 +1,144 @@
+---
+description: "How to run, test, configure credentials, and use Ecom SEO in Cursor"
+alwaysApply: true
+---
+
+# Cursor Developer & User Guide: Ecom SEO Trend Intelligence AI
+
+## 1. Quick Start Commands
+
+Run all commands from the repository root (`c:\Users\tarik\Desktop\Ecom Tools\ecom-seo`):
+
+### Start the Application (Web Dashboard)
+```bash
+npm run dev -w @ecom-seo/web-dashboard
+```
+- Open in browser: `http://localhost:3000` (or `http://localhost:3001` if port 3000 is occupied).
+- Features available immediately: Multi-platform Keyword Research, Seed Trend Charts, Device Share Distribution, CSV/JSON Exports, and Supabase Auth status.
+
+### Run All Tests (97 Tests Passing)
+```bash
+npm test
+```
+- Runs test suites covering provider adapters, OAuth flows, secret redaction, rate limiting, and HTTP error resilience.
+
+### Production Build & Type Check
+```bash
+npm run build -w @ecom-seo/web-dashboard
+```
+
+---
+
+## 2. API Access & Credential Configuration
+
+Private secrets are stored in `.env.local` (at repo root, ignored by Git).
+Never commit `.env.local` or expose secrets in client-side code.
+
+### A. Free & Working Immediately (No Keys Required)
+The following providers work out-of-the-box:
+- **Google Trends (trending now)**: Live rising/trending searches by country.
+- **Wikipedia Pageviews**: Educational search demand proxy, desktop/mobile/app breakdown, and 30-day trend lines.
+- **Stack Exchange**: Real user questions, answer counts, and view metrics.
+- **Hacker News (Algolia)**: Tech/ecom community question extraction and engagement points.
+- **GDELT Project (DOC 2.0)**: Global news coverage intensity over time.
+- **Supabase**: Auth, user sessions, and database connectivity.
+
+### B. Configuring External Paid/Approved Providers
+To activate additional providers, open `.env.local` and add the corresponding keys:
+
+#### 1. YouTube Data API v3
+- **Purpose**: Video search results, views, likes, and engagement metrics.
+- **Setup**: Go to [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials), create an API key, and enable YouTube Data API v3.
+- **Add to `.env.local`**:
+  ```bash
+  YOUTUBE_API_KEY=your_key_here
+  ```
+
+#### 2. OpenAI API
+- **Purpose**: AI keyword expansion, question suggestions, and intent clustering.
+- **Setup**: Go to [OpenAI API Keys](https://platform.openai.com/api-keys) and generate a secret key.
+- **Add to `.env.local`**:
+  ```bash
+  OPENAI_API_KEY=sk-proj-...
+  # Optional model override (defaults to gpt-4o-mini)
+  OPENAI_MODEL=gpt-4o-mini
+  ```
+
+#### 3. Google Ads API (Keyword Planner)
+- **Purpose**: Authentic search volume, average CPC, and competition index.
+- **Setup**: Requires approved Google Ads Developer Token (Basic/Standard access) and OAuth 2.0 Client credentials.
+- **Add to `.env.local`**:
+  ```bash
+  GOOGLE_ADS_DEVELOPER_TOKEN=your_token
+  GOOGLE_ADS_CLIENT_ID=your_oauth_client_id
+  GOOGLE_ADS_CLIENT_SECRET=your_oauth_client_secret
+  GOOGLE_ADS_REFRESH_TOKEN=your_refresh_token
+  GOOGLE_ADS_CUSTOMER_ID=1234567890
+  # GOOGLE_ADS_LOGIN_CUSTOMER_ID=if_using_mcc_manager
+  ```
+
+#### 4. Amazon Creators API (India & Global)
+- **Purpose**: Live Amazon product discovery, ASIN search, and buy-box pricing.
+- **Setup**: Sign in to [Amazon Associates India](https://affiliate-program.amazon.in/) and request Creators API access.
+- **Add to `.env.local`**:
+  ```bash
+  AMAZON_CREATORS_CREDENTIAL_ID=your_id
+  AMAZON_CREATORS_CREDENTIAL_SECRET=your_secret
+  AMAZON_PARTNER_TAG=your_tag-21
+  AMAZON_CREATORS_CREDENTIAL_VERSION=3.2
+  AMAZON_MARKETPLACE=www.amazon.in
+  ```
+
+#### 5. Flipkart Affiliate API
+- **Purpose**: Flipkart India product titles, URLs, and catalog prices.
+- **Setup**: From [Flipkart Affiliate Portal](https://affiliate.flipkart.com).
+- **Add to `.env.local`**:
+  ```bash
+  FLIPKART_AFFILIATE_ID=your_id
+  FLIPKART_AFFILIATE_TOKEN=your_token
+  ```
+
+#### 6. eBay Browse API
+- **Purpose**: Marketplace listings, matching count, and offer prices.
+- **Setup**: Register an application on [eBay Developer Portal](https://developer.ebay.com/).
+- **Add to `.env.local`**:
+  ```bash
+  EBAY_CLIENT_ID=your_app_client_id
+  EBAY_CLIENT_SECRET=your_app_client_secret
+  ```
+
+#### 7. Etsy Open API v3
+- **Purpose**: Handmade & artisan active listings, favorites, and prices.
+- **Setup**: Create an app on [Etsy Developers](https://developers.etsy.com/).
+- **Add to `.env.local`**:
+  ```bash
+  ETSY_API_KEY=your_keystring
+  ETSY_SHARED_SECRET=your_shared_secret
+  ```
+
+---
+
+## 3. How to Use the Keyword Research Workspace
+
+1. **Start the app**: Run `npm run dev -w @ecom-seo/web-dashboard`.
+2. **Select platforms**: Toggle between Google Trends, Wikipedia, Hacker News, Stack Exchange, YouTube, Amazon, etc.
+3. **Filter criteria**: Set target country (e.g. India, US), language, and time window (e.g. 30 days).
+4. **Enter a query**: Type any seed keyword (e.g. `running shoes`, `earbuds`, `air fryer`) and hit Enter.
+5. **Analyze results**:
+   - **Summary cards**: View total keywords returned, responsive providers, and trend percentage.
+   - **Seed History Chart**: Interactive timeline of demand over the selected window.
+   - **Device Breakdown**: Desktop vs. mobile web vs. mobile app distribution.
+   - **Tabbed Keyword Table**:
+     - *Keyword Suggestions* (completions and variants)
+     - *Questions* (informational queries)
+     - *Prepositions* (comparisons e.g. "vs", "for")
+     - *Related Keywords* (semantic context)
+   - **Export**: One-click download as sanitized CSV or provenance-backed JSON.
+
+---
+
+## 4. Key Reference Files in Cursor
+- [`docs/PROVIDER_SETUP_STATUS.md`](file:///c:/Users/tarik/Desktop/Ecom%20Tools/ecom-seo/docs/PROVIDER_SETUP_STATUS.md): Real-time readiness matrix for all 20 platforms.
+- [`docs/API_SETUP_GUIDE.md`](file:///c:/Users/tarik/Desktop/Ecom%20Tools/ecom-seo/docs/API_SETUP_GUIDE.md): Complete setup walkthroughs for developers.
+- [`docs/KEYWORD_RESEARCH_UI_SPEC.md`](file:///c:/Users/tarik/Desktop/Ecom%20Tools/ecom-seo/docs/KEYWORD_RESEARCH_UI_SPEC.md): UI layout and UX specification.
+- [`.env.example`](file:///c:/Users/tarik/Desktop/Ecom%20Tools/ecom-seo/.env.example): Exhaustive variable template.
