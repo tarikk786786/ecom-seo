@@ -116,6 +116,24 @@ To activate additional providers, open `.env.local` and add the corresponding ke
   ETSY_SHARED_SECRET=your_shared_secret
   ```
 
+#### 8. DataForSEO (Google Ads Search Volume without MCC)
+- **Purpose**: Direct Google Ads monthly search volume, historical trends, CPC, and competition index.
+- **Setup**: Sign up at [DataForSEO Dashboard](https://dataforseo.com/).
+- **Add to `.env.local`**:
+  ```bash
+  DATAFORSEO_LOGIN=your_login_email
+  DATAFORSEO_PASSWORD=your_api_password
+  ```
+
+#### 9. Reddit Data API
+- **Purpose**: Community discussion search, real user problems, upvotes, and comment volume.
+- **Setup**: Create an application on [Reddit Apps](https://www.reddit.com/prefs/apps) (type: "script").
+- **Add to `.env.local`**:
+  ```bash
+  REDDIT_CLIENT_ID=your_client_id
+  REDDIT_CLIENT_SECRET=your_client_secret
+  ```
+
 ---
 
 ## 3. How to Use the Keyword Research Workspace

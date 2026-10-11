@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { parseAiIdeas } from "@/lib/keywords/ai";
 import type { KeywordProvider } from "@/lib/keywords/provider";
 import { matchTrending, parseTrendingRss } from "@/lib/keywords/providers/google-trends-rss";
-import { parseHackerNews } from "@/lib/keywords/providers/hackernews";
 import { parseStackExchange } from "@/lib/keywords/providers/stackexchange";
 import { analyzeArticle, planWindow } from "@/lib/keywords/providers/wikipedia";
 import { PROVIDERS } from "@/lib/keywords/registry";
@@ -95,20 +94,6 @@ describe("wikipedia window planning and analysis", () => {
 });
 
 describe("provider parsers", () => {
-  it("keeps only question-form Hacker News titles with engagement metrics", () => {
-    const r = parseHackerNews(
-      [
-        { objectID: "1", title: "Ask HN: What earbuds do you use?", points: 12, num_comments: 30, created_at: "2026-10-01T00:00:00Z" },
-        { objectID: "2", title: "Show HN: Earbud case", points: 3 },
-      ],
-      NOW.toISOString(),
-    );
-    expect(r).toHaveLength(1);
-    expect(r[0]!.keyword).toBe("What earbuds do you use?");
-    expect(r[0]!.metrics.map((m) => m.kind)).toEqual(["engagement", "engagement"]);
-    expect(r[0]!.sourceUrl).toBe("https://news.ycombinator.com/item?id=1");
-  });
-
   it("decodes Stack Exchange titles and keeps view counts as engagement", () => {
     const r = parseStackExchange([{ question_id: 9, title: "Why does my &quot;earbud&quot; disconnect &amp; reconnect?", link: "https://superuser.com/q/9", view_count: 1500, answer_count: 2 }], "superuser", NOW.toISOString());
     expect(r[0]!.keyword).toBe('Why does my "earbud" disconnect & reconnect?');
@@ -135,19 +120,19 @@ describe("provider parsers", () => {
 });
 
 describe("registry", () => {
-  it("never marks unimplemented providers as usable", () => {
-    for (const p of PROVIDERS.filter((x) => !x.implemented)) {
-      expect(p.search).toBeUndefined();
-      expect(p.configuration({ env: {} }).ok).toBe(false);
+  it("lists only sources with a working adapter", () => {
+    for (const p of PROVIDERS) {
+      expect(p.implemented).toBe(true);
+      expect(p.search).toBeTypeOf("function");
     }
   });
 
-  it("has unique ids and includes every platform from the spec", () => {
+  it("has unique ids and puts marketplaces first", () => {
     const ids = PROVIDERS.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const id of ["google-ads", "google-trends-rss", "youtube", "bing", "amazon", "flipkart", "etsy", "ebay", "google-play", "instagram", "tiktok", "pinterest", "x", "reddit", "news", "shopify", "woocommerce"]) {
-      expect(ids).toContain(id);
-    }
+    expect(ids.slice(0, 4)).toEqual(["amazon", "flipkart", "ebay", "etsy"]);
+    for (const id of ["google-ads", "google-trends-rss", "youtube", "wikipedia", "news"]) expect(ids).toContain(id);
+    expect(ids).not.toContain("hackernews");
   });
 });
 
