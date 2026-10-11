@@ -49,3 +49,11 @@
 
 - Added `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md` covering official-docs research, endpoint/version verification, authentication/scopes, approval, pricing/quota, environment-variable names, safe credential detection, connector implementation, live tests, preview and GitHub updates.
 - This is a prompt/workflow addition only. The full API matrix and checklist must be populated when the prompt is run against current official docs and actual provider configuration.
+
+
+## 2026-10-11 — Cursor Agent workflow
+
+- Added `.cursor/rules/ecom-seo.mdc` as a persistent project rule with Cursor-compatible MDC frontmatter and alwaysApply enabled.
+- Added `docs/CURSOR_AGENT_RUN_PROMPT.md`, tailored for Cursor Agent to inspect the existing code, continue API discovery, implement testable integrations, show preview evidence, update tracking documents, and push verified cycles.
+- Linked both files from README.md and recorded status.
+- Verified that the files are on the repository's main branch. The prompt has not been run in Cursor during this documentation operation; no Cursor build/test/preview is claimed here.
