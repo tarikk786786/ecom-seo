@@ -54,3 +54,8 @@ npm run secrets:scan
 ## Project status
 
 See `BUILD_PROGRESS.md` and `FEATURE_STATUS.md` for what is implemented and verified. Provider integrations are only marked connected after a live test with authorized credentials.
+
+
+## Automatic requirements discovery prompt
+
+Use [docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md](docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md) to research official API requirements, access rules, authentication, cost, quotas, and environment-variable needs. It directs the agent to implement viable connectors incrementally and document what still needs account-owner approval.
