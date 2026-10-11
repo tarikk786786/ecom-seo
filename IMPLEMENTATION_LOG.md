@@ -26,3 +26,13 @@
 - Issues found and fixed during verification: `.env.local` written by PowerShell with a UTF-8 BOM was not parsed; root env file ignored because `@next/env` caches its first load (fixed with forceReload); pages prerendered as static when Supabase was unconfigured (fixed with `connection()` in `getCurrentUser`); endpoint reachability was labelled "Connected" (now "Reachable").
 - `todos` table: not assumed. The diagnostics query it read-only and report not found / permission denied / visible row count. No migration was applied.
 - Supabase publishable key was not available in this environment, so live Auth/Data API/sign-in verification is blocked.
+
+
+## 2026-10-11 — Keyword research workspace and live Supabase key
+
+- Built the keyword research workspace from docs/KEYWORD_RESEARCH_UI_SPEC.md. The reference screenshot image was never available in this environment, so layout follows the spec's information hierarchy.
+- Provider choices: only official/public APIs. Wikimedia (opensearch with `redirects=resolve`, full-text search, per-article pageviews by access type), Stack Exchange 2.3 (no key, 300 req/day per IP), HN Algolia, Google Trends daily RSS (fast-xml-parser 5.11.2). Deliberately not used: unofficial Google/Amazon/YouTube autocomplete endpoints and scraping. Bing marked DISABLED (Search APIs retired Aug 2025).
+- Metric semantics: Wikipedia article views (absolute, with period) are labelled "not search volume"; Stack Exchange/HN counts are engagement; Trends RSS traffic kept as the provider's approximate bucket (e.g. "2,000+"). Sorting by metric groups rows by metric type so different meanings are never ranked together. Gaps in history are listed, never filled; totals are dropped when more than 10% of the period is missing.
+- Issues found and fixed during verification: a provider timeout was reported as a generic error because abort fired before the timeout rejection; "how to …" phrases were counted as prepositions; Wikipedia completions returned redirect titles with near-zero views (now resolved to the target article); the seed article could fall back to a loosely related full-text hit (now exact match or top completion only).
+- Supabase: user supplied the publishable key; written to the ignored root `.env.local` (not committed). The snippet's `middleware.ts` and `todos` page were not added: Next 16 uses the existing `proxy.ts`, and `public.todos` does not exist in the project.
+- Not run: `npx skills add supabase/agent-skills` (optional editor tooling, not part of the app).

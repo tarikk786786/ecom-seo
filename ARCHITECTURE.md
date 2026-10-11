@@ -49,3 +49,9 @@ No framework should be installed until the repository is audited for existing co
 - Each metric carries its source, unit, geography, period and freshness. Aggregation is permitted only when the compared measurements are compatible.
 - Chart components render only actual records or visibly labeled test fixtures; production paths must not fall back to fake sample values.
 - See docs/KEYWORD_RESEARCH_UI_SPEC.md for the full UI contract and acceptance criteria.
+
+
+## Implemented keyword research (web dashboard)
+- `lib/keywords/`: `types.ts` (records, metrics with kind/unit/period/definition, provider outcomes), `provider.ts` (adapter contract: `configuration()`, `search()`, `liveCheck()`), `providers/*` (one file per live source), `registry.ts` (all platforms; unimplemented entries have no `search` and can never be queried), `search.ts` (validation and concurrent orchestration with per-provider timeout and partial results), `view.ts` (tabs, sort, filter, CSV/JSON export), `ai.ts` (prompt and defensive parsing).
+- API routes run on the server only; provider credentials (when added) stay in server env. Client components under `components/keywords/` receive serialisable provider descriptors without configuration values.
+- Persistence today: browser localStorage for settings, history, saved searches and lists. Account sync is planned as Supabase tables with owner-only RLS.

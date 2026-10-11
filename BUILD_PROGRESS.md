@@ -24,13 +24,22 @@
 - Live diagnostics endpoint `/api/health/supabase` separating configuration, endpoint, Auth, Data API, `todos` table and current user.
 - Email sign-in/sign-up/sign-out (Server Actions), `/auth/confirm`, protected `/account`.
 - Checks run: `npm run typecheck` (pass), `npm run lint` (pass), `npm test` (4 files, 33 tests pass), `npm run build` (pass), `npm run secrets:scan` (pass).
-- Live check against https://fxwelcidbobizssrewip.supabase.co: endpoint reachable (HTTP 401 without key, ~0.5 s). Auth/database checks not run: publishable key not available in this environment.
+- Live check against https://fxwelcidbobizssrewip.supabase.co: endpoint reachable (HTTP 401 without key, ~0.5 s). Auth/database checks were not run in this cycle because the key was not available yet; see the next cycle.
 - Preview: production server `npm start` at http://localhost:3000, inspected in a real browser.
+
+## Cycle 2026-10-11 — All-platform keyword research workspace (verified locally)
+- `/` is now the keyword research workspace; the previous overview moved to `/overview`; `/keywords` redirects to `/`.
+- Provider registry with 20 platforms. Live adapters (public, no credentials): Wikipedia (title completions, related articles, article-view history, access-method split), Stack Exchange (questions), Hacker News (question-form stories), Google Trends daily trending RSS (rising searches). All other platforms show their real access requirement (ACCESS_REQUIRED / NOT_CONFIGURED / DISABLED) and are never queried.
+- `POST /api/keywords/search`: concurrent providers, per-provider timeout, cancellation, partial results, applied/not-supported filter reporting, per-IP rate limit. `GET /api/keywords/providers`: live checks cached 5 min. `/api/keywords/ai-expand`: server-side OpenAI call, 503 until `OPENAI_API_KEY` is set.
+- UI: platform row with states and setup details, search bar (country, language, window, cancel, clear, recent searches), provider coverage (responded vs failed), metric cards (search volume/CPC shown as "Not provided" until Google Ads access), SVG history chart with table fallback, device split, tabs (Suggestions, Questions, Prepositions, Related, Rising), sortable/filterable/paginated table with selection, copy, CSV/JSON export with provenance, evidence dialog, saved searches and keyword lists (this browser only), settings drawer, AI panel.
+- Supabase publishable key now set in the ignored root `.env.local`. Live diagnostics: Auth connected (HTTP 200, email sign-in and sign-up enabled), Data API reachable, `public.todos` does not exist (HTTP 404, PGRST205).
+- Checks: typecheck pass, lint pass, `npm test` 5 files / 55 tests pass, build pass, secrets scan pass. Live API searches verified ("wireless earbuds", "how to learn python", "air fryer"). Browser preview verified at 1440 px and 390 px (no page overflow; table scrolls inside its card).
 
 ## Not yet implemented
 - Chrome extension UI and build pipeline.
-- API/backend workers, scheduler, provider integrations.
-- AI orchestration and evidence-grounded analyses.
+- API/backend workers, scheduler.
+- Keyword providers needing credentials (Google Ads, YouTube, Amazon, Flipkart, Etsy, eBay, Reddit, social platforms, stores); GDELT news adapter.
+- Account-synced saved searches/lists (needs Supabase tables with owner-only RLS).
 - Tenant data model, RLS-backed tables.
 - Server manager and deployment assets.
 - Billing, paid entitlements and licensing.
@@ -38,9 +47,10 @@
 - Hosted deployment.
 
 ## Blockers
-- Supabase publishable key not present in the development environment: Auth, Data API and sign-in cannot be verified live until `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is set in `.env.local`.
-- No provider credentials or API approvals supplied yet.
-- Marketplace API availability must be verified per connector during implementation.
+- Search volume, CPC and competition need a Google Ads API developer token plus OAuth.
+- AI expansion needs `OPENAI_API_KEY` on the server.
+- Other provider credentials or API approvals not supplied yet.
+- `public.todos` does not exist in the Supabase project; no table was created.
 
 ## Next recommended task
-Implement the screenshot-guided keyword research dashboard in the existing repo: first audit the repository, then build a runnable Next.js/App Router dashboard (integrating Supabase SSR if appropriate), responsive provider toolbar/search controls/query tabs/metric panels/charts/table with honest empty and connection states. Add tests, launch a real preview, and only then integrate the first authorized live keyword provider. Do not hardcode screenshot metrics as real data.
+Add Supabase persistence for saved searches and keyword lists (migration with owner-only RLS, applied only with the user's approval), then the YouTube Data API adapter once `YOUTUBE_API_KEY` is provided, and the GDELT news adapter.

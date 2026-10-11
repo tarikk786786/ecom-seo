@@ -6,9 +6,9 @@ import { useState } from "react";
 import { REPO_URL } from "@/lib/features";
 
 const LINKS = [
-  { href: "/", label: "Overview" },
+  { href: "/", label: "Keyword research" },
+  { href: "/overview", label: "Overview" },
   { href: "/integrations", label: "Integrations" },
-  { href: "/keywords", label: "Keyword research" },
   { href: "/ai", label: "AI trend analysis" },
   { href: "/status", label: "Build status" },
   { href: "/account", label: "Account" },
