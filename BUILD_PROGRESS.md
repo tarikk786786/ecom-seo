@@ -64,3 +64,9 @@ Add Supabase persistence for saved searches and keyword lists (migration with ow
 ## Automatic requirements discovery
 - Added `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md` for official API research, scoped credential detection, pricing/quota verification, adapter implementation and live tests.
 - The prompt does not claim credentials, approvals or paid access can be automatically acquired; it records the exact blockers and requires preview/tests/GitHub verification.
+
+
+## Cursor Agent workflow files
+- Added `.cursor/rules/ecom-seo.mdc` as an always-applied, version-controlled Cursor project rule for repo continuity, real-data integrity, tests/previews and verified GitHub pushes.
+- Added `docs/CURSOR_AGENT_RUN_PROMPT.md` with instructions to execute the existing API discovery workflow and continue implementation in Cursor Agent.
+- These files configure Cursor's instructions; the requirements audit still needs to be executed in the local Cursor workspace and verified against available credentials.
