@@ -49,3 +49,7 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Production deployment verification | NOT STARTED | |
 
 | Official API integration catalog | IMPLEMENTED | docs/API_INTEGRATION_CATALOG.md; documentation only; credentials and access must be verified per connector |
+
+| Automatic requirements discovery prompt | IMPLEMENTED | `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md`; documented but not yet executed as a complete API audit |
+| API requirements matrix | NOT STARTED | To be generated/populated during discovery run |
+| Requirements checklist | NOT STARTED | To be generated/populated during discovery run |
