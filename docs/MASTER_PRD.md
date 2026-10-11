@@ -205,3 +205,8 @@ This visual direction does not remove the platform-access rule: every source req
 ## 14. Official API inventory
 
 The consolidated provider links, direct endpoint patterns, credential requirements, access limitations and recommended integration sequence are documented in [docs/API_INTEGRATION_CATALOG.md](./API_INTEGRATION_CATALOG.md). Use that register as the initial API checklist and verify current official access requirements before implementing connectors.
+
+
+## 15. Automatic requirements discovery
+
+Use [docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md](./AUTO_REQUIREMENT_DISCOVERY_PROMPT.md) to populate and maintain `docs/API_REQUIREMENTS_MATRIX.md` and `docs/REQUIREMENTS_CHECKLIST.md`, safely compare required credentials with configured environment variables, and implement verified API adapters incrementally. Private credentials, account approvals, paid access, and universal platform coverage must never be claimed as automatically acquired.
