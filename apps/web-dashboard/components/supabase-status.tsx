@@ -116,11 +116,8 @@ export function SupabaseStatus({ compact = false }: { compact?: boolean }) {
             <p className="mt-1 text-xs text-zinc-500">Exposed: {d.dataApi.exposedTables.length ? d.dataApi.exposedTables.join(", ") : "no tables"}</p>
           )}
         </Row>
-        <Row label="5. Table public.todos" result={d?.todosTable}>
-          {d?.todosTable.columns && <p className="mt-1 text-xs text-zinc-500">Columns: {d.todosTable.columns.join(", ")}</p>}
-        </Row>
         <Row
-          label="6. Current user"
+          label="5. Current user"
           result={
             d
               ? {

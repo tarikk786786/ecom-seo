@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { REPO_URL } from "@/lib/features";
 
 const LINKS = [
   { href: "/", label: "Keyword research" },
-  { href: "/overview", label: "Overview" },
-  { href: "/integrations", label: "Integrations" },
-  { href: "/ai", label: "AI trend analysis" },
-  { href: "/status", label: "Build status" },
+  { href: "/integrations", label: "Data sources" },
   { href: "/account", label: "Account" },
 ];
 
@@ -20,7 +16,7 @@ function Brand() {
       <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-sky-500 to-emerald-500 text-sm font-bold text-zinc-950">ES</span>
       <span className="leading-tight">
         <span className="block text-sm font-semibold text-zinc-50">Ecom SEO</span>
-        <span className="block text-[11px] text-zinc-500">Keyword &amp; trend research</span>
+        <span className="block text-[11px] text-zinc-500">Ecommerce keyword research</span>
       </span>
     </Link>
   );
@@ -49,10 +45,13 @@ export function Nav({ userEmail }: { userEmail?: string }) {
 
   const footer = (
     <div className="space-y-2 border-t border-zinc-800 pt-4 text-xs text-zinc-500">
-      <p className="truncate">{userEmail ? `Signed in: ${userEmail}` : "Not signed in"}</p>
-      <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="block text-sky-400 hover:text-sky-300">
-        github.com/tarikk786786/ecom-seo ↗
-      </a>
+      {userEmail ? (
+        <p className="truncate">Signed in: {userEmail}</p>
+      ) : (
+        <Link href="/login" className="block text-sky-400 hover:text-sky-300">
+          Sign in
+        </Link>
+      )}
     </div>
   );
 

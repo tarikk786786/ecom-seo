@@ -174,7 +174,7 @@ export function SavedPanel({
           </ul>
         )}
       </div>
-      <p className="text-[11px] text-zinc-600">Stored on this device only. Account sync needs the Supabase keyword tables (see docs).</p>
+      <p className="text-[11px] text-zinc-600">Stored on this device only.</p>
     </div>
   );
 }

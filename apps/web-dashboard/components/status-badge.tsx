@@ -1,5 +1,4 @@
 import type { ConnectionState } from "@/lib/supabase-diagnostics";
-import type { BuildStatus } from "@/lib/features";
 
 const CONNECTION: Record<ConnectionState, { label: string; tone: string }> = {
   configured: { label: "Configured", tone: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
@@ -14,13 +13,6 @@ const CONNECTION: Record<ConnectionState, { label: string; tone: string }> = {
   not_found: { label: "Not found", tone: "border-zinc-500/40 bg-zinc-500/10 text-zinc-300" },
 };
 
-const BUILD: Record<BuildStatus, { label: string; tone: string }> = {
-  implemented: { label: "Implemented", tone: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
-  in_progress: { label: "In progress", tone: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
-  planned: { label: "Planned", tone: "border-zinc-600/50 bg-zinc-800/60 text-zinc-400" },
-  blocked: { label: "Blocked", tone: "border-rose-500/40 bg-rose-500/10 text-rose-300" },
-};
-
 function Pill({ label, tone, pulse }: { label: string; tone: string; pulse?: boolean }) {
   return (
     <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${tone}`}>
@@ -33,9 +25,4 @@ function Pill({ label, tone, pulse }: { label: string; tone: string; pulse?: boo
 export function ConnectionBadge({ state }: { state: ConnectionState }) {
   const s = CONNECTION[state];
   return <Pill label={s.label} tone={s.tone} pulse={state === "checking"} />;
-}
-
-export function BuildBadge({ status }: { status: BuildStatus }) {
-  const s = BUILD[status];
-  return <Pill label={s.label} tone={s.tone} />;
 }

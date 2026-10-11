@@ -197,7 +197,7 @@ export function KeywordWorkspace() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">Keyword research</h1>
           <p className="mt-1 max-w-3xl text-sm text-zinc-400">
-            Research a keyword across search, marketplaces, video, news and communities in one pass. Each result shows where it came from and when, and figures from different sources are kept separate.
+            Find what shoppers search for across Amazon, Flipkart, eBay, Etsy, Google and YouTube in one pass. Every keyword, listing and figure links back to the source it came from.
           </p>
         </div>
         <button type="button" onClick={() => setSettingsOpen(true)} className={btn}>
@@ -214,7 +214,7 @@ export function KeywordWorkspace() {
             </span>
           </p>
           <div className="flex flex-wrap gap-3 text-[11px] text-zinc-500">
-            {(["CONNECTED", "ACCESS_REQUIRED", "NOT_CONFIGURED", "ERROR", "DISABLED"] as const).map((s) => (
+            {(["CONNECTED", "NOT_CONFIGURED", "ACCESS_REQUIRED", "ERROR"] as const).map((s) => (
               <span key={s} className="flex items-center gap-1">
                 <span className={`h-1.5 w-1.5 rounded-full ${STATE_STYLE[s].dot}`} />
                 {STATE_STYLE[s].label}
@@ -243,7 +243,7 @@ export function KeywordWorkspace() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               maxLength={120}
-              placeholder="Enter a keyword, product, brand or topic"
+              placeholder="Enter a product, category or brand"
               aria-label="Seed keyword"
               list="kw-history"
               className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-sky-500"
@@ -536,10 +536,12 @@ export function KeywordWorkspace() {
                   }
                 />
               </div>
-              <div className="rounded-xl border border-violet-500/20 bg-zinc-900/40 p-4">
-                <h2 className="mb-2 text-sm font-semibold text-zinc-100">AI expansion</h2>
-                <AiPanel configured={aiConfigured} query={response.query} observed={response.records.map((r) => r.keyword)} country={response.request.country} language={response.request.language} />
-              </div>
+              {aiConfigured && (
+                <div className="rounded-xl border border-violet-500/20 bg-zinc-900/40 p-4">
+                  <h2 className="mb-2 text-sm font-semibold text-zinc-100">AI expansion</h2>
+                  <AiPanel configured={aiConfigured} query={response.query} observed={response.records.map((r) => r.keyword)} country={response.request.country} language={response.request.language} />
+                </div>
+              )}
             </aside>
           </section>
         </>
@@ -548,9 +550,9 @@ export function KeywordWorkspace() {
       {!response && !loading && search.status !== "error" && (
         <section className="grid gap-3 lg:grid-cols-[1fr_280px]">
           <div className="rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-            <p className="text-sm text-zinc-300">Enter a keyword and press Search.</p>
+            <p className="text-sm text-zinc-300">Enter a product, category or brand and press Search.</p>
             <p className="mx-auto mt-2 max-w-xl text-xs text-zinc-500">
-              Results come live from the connected platforms above. Platforms marked Access required or Not configured need credentials or partner approval before they can return data. Click any platform to see what it provides.
+              Results come live from the connected sources above. Marketplaces marked Not configured need your API credentials before they return listings; click a source to see what it needs.
             </p>
           </div>
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">

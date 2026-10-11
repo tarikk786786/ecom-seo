@@ -6,8 +6,8 @@ import { readSupabaseEnv } from "@/lib/env";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Ecom SEO — Keyword & trend research", template: "%s · Ecom SEO" },
-  description: "Verified trend discovery, SEO keyword research and e-commerce product intelligence.",
+  title: { default: "Ecom SEO — Ecommerce keyword research", template: "%s · Ecom SEO" },
+  description: "Product keyword research across Amazon, Flipkart, eBay, Etsy, Google and YouTube, with every figure linked to its source.",
 };
 
 export const viewport: Viewport = { themeColor: "#09090b" };
