@@ -43,3 +43,9 @@
 - Covered core keyword metrics (Google Ads, Google Trends, DataForSEO, Semrush, Ahrefs, Microsoft Advertising), own-site analytics (Search Console/Bing Webmaster), Amazon Creators/SP-API, Flipkart Affiliate/Seller API, other marketplaces, Shopify/WooCommerce/Merchant Center, video/social/news, OpenAI, Supabase, and billing options.
 - Emphasized that product/keyword APIs differ in access and metrics; no provider is considered live simply because its docs are listed.
 - Documentation only; no new API credentials were created and no new live connector is claimed by this documentation commit.
+
+
+## 2026-10-11 — Automatic API requirements prompt
+
+- Added `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md` covering official-docs research, endpoint/version verification, authentication/scopes, approval, pricing/quota, environment-variable names, safe credential detection, connector implementation, live tests, preview and GitHub updates.
+- This is a prompt/workflow addition only. The full API matrix and checklist must be populated when the prompt is run against current official docs and actual provider configuration.
