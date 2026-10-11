@@ -35,10 +35,16 @@
 - Supabase publishable key now set in the ignored root `.env.local`. Live diagnostics: Auth connected (HTTP 200, email sign-in and sign-up enabled), Data API reachable, `public.todos` does not exist (HTTP 404, PGRST205).
 - Checks: typecheck pass, lint pass, `npm test` 5 files / 55 tests pass, build pass, secrets scan pass. Live API searches verified ("wireless earbuds", "how to learn python", "air fryer"). Browser preview verified at 1440 px and 390 px (no page overflow; table scrolls inside its card).
 
+## Cycle 2026-10-11 — API requirements discovery and credentialed adapters (verified locally)
+- Official-source research recorded in `docs/API_REQUIREMENTS_MATRIX.md` (search/SEO, e-commerce incl. India, social/news, AI/billing/deploy), `docs/REQUIREMENTS_CHECKLIST.md` and `docs/API_SETUP_GUIDE.md`. `.env.example` has placeholders only.
+- Hardened provider HTTP layer: POST support, bounded retries with backoff (network/5xx only), `auth` error category (401/403 → ACCESS_REQUIRED), sanitised provider error codes, secret/bearer redaction, OAuth token cache, process-level throttles.
+- New adapters: Google Ads API v25 Keyword Planner (volume, monthly history, competition, bids, CPC), YouTube Data API v3, Amazon Creators API, Flipkart Affiliate, eBay Browse, Etsy v3 (all IMPLEMENTED_BUT_CREDENTIALS_MISSING) and GDELT DOC 2.0 news (no key).
+- Checks: typecheck pass, lint pass, `npm test` 6 files / 95 tests pass (40 new adapter contract tests), build pass. Live `/api/keywords/providers`: Wikipedia, Stack Exchange, Hacker News, Google Trends RSS CONNECTED; the six credentialed adapters NOT_CONFIGURED with the missing variable names; GDELT RATE_LIMITED (GDELT answered HTTP 429 to the app and to direct requests spaced 20–30 s apart; one direct request returned 200 earlier and confirmed the format).
+
 ## Not yet implemented
 - Chrome extension UI and build pipeline.
 - API/backend workers, scheduler.
-- Keyword providers needing credentials (Google Ads, YouTube, Amazon, Flipkart, Etsy, eBay, Reddit, social platforms, stores); GDELT news adapter.
+- Live use of credentialed adapters (no credentials supplied). Reddit, X, Pinterest, Instagram, TikTok, Search Console, Microsoft Ads, SP-API, Flipkart Seller, Walmart, Shopify, WooCommerce adapters.
 - Account-synced saved searches/lists (needs Supabase tables with owner-only RLS).
 - Tenant data model, RLS-backed tables.
 - Server manager and deployment assets.
@@ -47,13 +53,14 @@
 - Hosted deployment.
 
 ## Blockers
-- Search volume, CPC and competition need a Google Ads API developer token plus OAuth.
+- Search volume, CPC and competition: Google Ads developer token with Basic access, OAuth client and refresh token, customer ID (adapter ready).
+- YouTube, eBay, Etsy, Flipkart Affiliate, Amazon Creators: credentials not supplied (adapters ready). Amazon also requires Associates eligibility (≥10 qualifying sales in 30 days).
+- DataForSEO / Semrush / X: paid; nothing purchased without explicit authorisation. Reddit: commercial agreement required.
 - AI expansion needs `OPENAI_API_KEY` on the server.
-- Other provider credentials or API approvals not supplied yet.
 - `public.todos` does not exist in the Supabase project; no table was created.
 
 ## Next recommended task
-Add Supabase persistence for saved searches and keyword lists (migration with owner-only RLS, applied only with the user's approval), then the YouTube Data API adapter once `YOUTUBE_API_KEY` is provided, and the GDELT news adapter.
+Add Supabase persistence for saved searches and keyword lists (migration with owner-only RLS, applied only with the user's approval), then `GenerateKeywordHistoricalMetrics` for saved lists. In parallel, add the Google Ads and YouTube credentials (see `docs/API_SETUP_GUIDE.md`) and run a live search to move those providers to CONNECTED.
 
 
 ## API sourcing catalog

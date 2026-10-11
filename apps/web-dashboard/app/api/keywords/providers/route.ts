@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PROVIDERS, providerInfo, type ProviderStatus } from "@/lib/keywords/registry";
-import { ProviderHttpError } from "@/lib/keywords/http";
+import { ProviderHttpError, redactSecrets } from "@/lib/keywords/http";
+import { errorState } from "@/lib/keywords/search";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,9 @@ async function check(): Promise<ProviderStatus[]> {
         await p.liveCheck({ env: process.env, now: new Date() });
         return { ...info, state: "CONNECTED", checkedAt: new Date().toISOString(), latencyMs: Date.now() - started };
       } catch (err) {
-        const rate = err instanceof ProviderHttpError && err.category === "rate_limited";
-        return { ...info, state: rate ? "RATE_LIMITED" : "ERROR", checkedAt: new Date().toISOString(), detail: err instanceof Error ? err.message : String(err), latencyMs: Date.now() - started };
+        const state = errorState(err instanceof ProviderHttpError ? err.category : "network");
+        const detail = redactSecrets(err instanceof Error ? err.message : String(err), process.env);
+        return { ...info, state, checkedAt: new Date().toISOString(), detail, latencyMs: Date.now() - started };
       }
     }),
   );

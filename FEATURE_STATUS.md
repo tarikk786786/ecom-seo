@@ -24,14 +24,14 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Authentication and tenant isolation | NOT STARTED | |
 | Provider registry/capabilities | TESTED | lib/keywords/registry.ts with provides/not-provided/filter support per provider |
 | Google Trends integration | IN PROGRESS | Daily trending RSS live (rising searches, approx. traffic bucket); official API not available |
-| Google Ads keyword planning | BLOCKED | Needs developer token + OAuth; source for volume/CPC/competition |
+| Google Ads keyword planning | BLOCKED | Adapter implemented and contract-tested (v25 ideas, volume, history, competition, bids, CPC); needs developer token (Basic access) + OAuth to go live |
 | Google Search Console | NOT STARTED | Requires authorized site access |
-| YouTube integration | BLOCKED | Needs YOUTUBE_API_KEY; adapter not written |
-| News/RSS/search providers | IN PROGRESS | Wikipedia, Stack Exchange, Hacker News live; GDELT planned; Bing APIs retired |
+| YouTube integration | BLOCKED | Adapter implemented and contract-tested; needs YOUTUBE_API_KEY |
+| News/RSS/search providers | IN PROGRESS | Wikipedia, Stack Exchange, Hacker News live; GDELT adapter implemented (format verified live; GDELT rate-limited this run); Bing APIs retired |
 | Unified e-commerce search | NOT STARTED | |
-| Amazon provider(s) | NOT STARTED | Creators and Seller APIs differ in permissions |
-| Flipkart provider(s) | NOT STARTED | Affiliate and Seller APIs differ |
-| Other marketplace adapters | NOT STARTED | Access to be verified per provider |
+| Amazon provider(s) | BLOCKED | Creators API adapter implemented and contract-tested; needs Associates eligibility + credentials. PA-API retired. SP-API (seller-only) documented |
+| Flipkart provider(s) | BLOCKED | Affiliate adapter implemented and contract-tested; needs credentials, current access unconfirmed. Seller API documented |
+| Other marketplace adapters | BLOCKED | eBay Browse and Etsy v3 adapters implemented and contract-tested; need keys. Meesho/Myntra/AJIO/JioMart: no public API |
 | Cross-marketplace product matching | NOT STARTED | |
 | Price/rank history | NOT STARTED | Subject to provider support and retention rules |
 | AI orchestration/evidence validation | IN PROGRESS | AI keyword expansion route (labelled, no metrics); BLOCKED on OPENAI_API_KEY for live use |
@@ -43,16 +43,17 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Payment integration/webhooks | NOT STARTED | |
 | Self-hosted licensing | NOT STARTED | |
 | Docker/deployment/backup assets | NOT STARTED | |
-| Unit/integration/e2e/security tests | IN PROGRESS | 55 Vitest unit tests (mocked provider fixtures); no e2e suite yet |
+| Unit/integration/e2e/security tests | IN PROGRESS | 95 Vitest tests (mocked provider fixtures, incl. 40 adapter contract tests); no e2e suite yet |
 | CI build/security workflow | NOT STARTED | |
 | Live preview | IMPLEMENTED | Local only (`npm run dev` / `npm start`, http://localhost:3000); no hosted preview |
 | Production deployment verification | NOT STARTED | |
 
 | Official API integration catalog | IMPLEMENTED | docs/API_INTEGRATION_CATALOG.md; documentation only; credentials and access must be verified per connector |
 
-| Automatic requirements discovery prompt | IMPLEMENTED | `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md`; documented but not yet executed as a complete API audit |
-| API requirements matrix | NOT STARTED | To be generated/populated during discovery run |
-| Requirements checklist | NOT STARTED | To be generated/populated during discovery run |
+| Automatic requirements discovery prompt | IMPLEMENTED | `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md`; executed 2026-10-11 |
+| API requirements matrix | IMPLEMENTED | `docs/API_REQUIREMENTS_MATRIX.md` (verified 2026-10-11, statuses per provider) |
+| Requirements checklist | IMPLEMENTED | `docs/REQUIREMENTS_CHECKLIST.md` |
+| Credentials setup guide | IMPLEMENTED | `docs/API_SETUP_GUIDE.md`; `.env.example` placeholders only |
 
 | Cursor persistent project rule | IMPLEMENTED | `.cursor/rules/ecom-seo.mdc`; committed in repository; Cursor workspace not independently tested here |
-| Cursor API discovery execution prompt | IMPLEMENTED | `docs/CURSOR_AGENT_RUN_PROMPT.md`; prompt saved, not yet executed in Cursor |
+| Cursor API discovery execution prompt | IMPLEMENTED | `docs/CURSOR_AGENT_RUN_PROMPT.md`; executed in Cursor 2026-10-11 |

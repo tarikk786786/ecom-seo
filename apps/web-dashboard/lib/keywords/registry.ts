@@ -1,8 +1,15 @@
 import type { ConfigState, KeywordProvider, KeywordProviderDescriptor } from "./provider";
+import { amazonCreators } from "./providers/amazon-creators";
+import { ebay } from "./providers/ebay";
+import { etsy } from "./providers/etsy";
+import { flipkart } from "./providers/flipkart";
+import { gdelt } from "./providers/gdelt";
+import { googleAds } from "./providers/google-ads";
 import { googleTrendsRss } from "./providers/google-trends-rss";
 import { hackerNews } from "./providers/hackernews";
 import { stackExchange } from "./providers/stackexchange";
 import { wikipedia } from "./providers/wikipedia";
+import { youtube } from "./providers/youtube";
 import type { ProviderState } from "./types";
 
 type Planned = Omit<KeywordProviderDescriptor, "implemented" | "defaultEnabled" | "supports"> & {
@@ -20,33 +27,9 @@ function planned(p: Planned): KeywordProvider {
 const NOT_IMPLEMENTED = "Adapter not implemented yet.";
 
 export const PROVIDERS: KeywordProvider[] = [
-  planned({
-    id: "google-ads",
-    name: "Google Search (Keyword Planner)",
-    group: "Search & ads",
-    glyph: "G",
-    color: "#4ade80",
-    access: "Google Ads API developer token (Basic access or higher) plus OAuth consent from a Google Ads account.",
-    docsUrl: "https://developers.google.com/google-ads/api/docs/keyword-planning/generate-keyword-ideas",
-    provides: ["Keyword ideas", "Average monthly searches (historical)", "Top-of-page bid low/high", "Competition (LOW/MEDIUM/HIGH and 0–100 index)"],
-    notProvided: ["Live/real-time trends", "Device split in keyword ideas"],
-    state: "ACCESS_REQUIRED",
-    reason: `${NOT_IMPLEMENTED} Requires an approved Google Ads developer token and account OAuth. This is the source for search volume, CPC and competition.`,
-  }),
+  googleAds,
   googleTrendsRss,
-  planned({
-    id: "youtube",
-    name: "YouTube",
-    group: "Video",
-    glyph: "YT",
-    color: "#f87171",
-    access: "YouTube Data API v3 key from Google Cloud (search.list costs 100 quota units).",
-    docsUrl: "https://developers.google.com/youtube/v3/docs/search/list",
-    provides: ["Video titles matching a query", "Video view/like counts"],
-    notProvided: ["YouTube search volume", "CPC"],
-    state: "NOT_CONFIGURED",
-    reason: `${NOT_IMPLEMENTED} Needs YOUTUBE_API_KEY on the server.`,
-  }),
+  youtube,
   planned({
     id: "bing",
     name: "Bing",
@@ -60,63 +43,15 @@ export const PROVIDERS: KeywordProvider[] = [
     state: "DISABLED",
     reason: "Bing Search APIs are retired. A Microsoft Advertising Ad Insight adapter is planned.",
   }),
-  planned({
-    id: "amazon",
-    name: "Amazon",
-    group: "Marketplaces",
-    glyph: "a",
-    color: "#fbbf24",
-    access: "Amazon Creators API (Associates) per marketplace, e.g. amazon.in; Selling Partner API covers only your own seller account.",
-    docsUrl: "https://affiliate-program.amazon.com/",
-    provides: ["Product search results, offers and prices (Creators API)"],
-    notProvided: ["Amazon search volume", "Marketplace-wide sales data"],
-    state: "ACCESS_REQUIRED",
-    reason: `${NOT_IMPLEMENTED} Requires Amazon Associates API credentials and partner tags.`,
-  }),
-  planned({
-    id: "flipkart",
-    name: "Flipkart",
-    group: "Marketplaces",
-    glyph: "F",
-    color: "#facc15",
-    access: "Flipkart Affiliate API (affiliate ID and token). Seller APIs cover only your own listings.",
-    docsUrl: "https://affiliate.flipkart.com",
-    provides: ["Product search and offers from the affiliate catalog"],
-    notProvided: ["Flipkart search volume"],
-    state: "ACCESS_REQUIRED",
-    reason: `${NOT_IMPLEMENTED} Requires Flipkart Affiliate credentials.`,
-  }),
-  planned({
-    id: "etsy",
-    name: "Etsy",
-    group: "Marketplaces",
-    glyph: "E",
-    color: "#fb923c",
-    access: "Etsy Open API v3 key (app approval required).",
-    docsUrl: "https://developers.etsy.com/documentation/",
-    provides: ["Active listings matching a query", "Listing views/favorites where returned"],
-    notProvided: ["Etsy search volume"],
-    state: "NOT_CONFIGURED",
-    reason: `${NOT_IMPLEMENTED} Needs ETSY_API_KEY.`,
-  }),
-  planned({
-    id: "ebay",
-    name: "eBay",
-    group: "Marketplaces",
-    glyph: "e",
-    color: "#a78bfa",
-    access: "eBay Browse API (client-credentials OAuth app).",
-    docsUrl: "https://developer.ebay.com/api-docs/buy/browse/resources/item_summary/methods/search",
-    provides: ["Item search results and prices", "Total matching listings"],
-    notProvided: ["eBay search volume"],
-    state: "NOT_CONFIGURED",
-    reason: `${NOT_IMPLEMENTED} Needs EBAY_CLIENT_ID and EBAY_CLIENT_SECRET.`,
-  }),
+  amazonCreators,
+  flipkart,
+  etsy,
+  ebay,
   planned({
     id: "google-play",
     name: "Google Play",
     group: "App stores",
-    glyph: "▶",
+    glyph: "\u25B6",
     color: "#34d399",
     access: "No public Play Store search API. The Play Developer Reporting API covers only apps you own.",
     docsUrl: "https://developers.google.com/play/developer/reporting",
@@ -170,12 +105,12 @@ export const PROVIDERS: KeywordProvider[] = [
     group: "Social",
     glyph: "X",
     color: "#e4e4e7",
-    access: "X API paid tier for recent search and post counts.",
+    access: "X API paid access (pay-per-use credits) for recent search and post counts.",
     docsUrl: "https://docs.x.com/x-api/posts/recent-search",
     provides: ["Recent posts and post counts for a query"],
     notProvided: ["Search volume"],
     state: "ACCESS_REQUIRED",
-    reason: `${NOT_IMPLEMENTED} Requires a paid X API plan.`,
+    reason: `${NOT_IMPLEMENTED} Requires paid X API credits; not purchased.`,
   }),
   planned({
     id: "reddit",
@@ -183,26 +118,14 @@ export const PROVIDERS: KeywordProvider[] = [
     group: "Social",
     glyph: "R",
     color: "#f97316",
-    access: "Reddit Data API OAuth app (registration and terms acceptance).",
+    access: "Reddit Data API requires app approval; commercial use needs a separate agreement with Reddit. Free tier is 100 queries/minute for approved non-commercial apps.",
     docsUrl: "https://support.reddithelp.com/hc/en-us/articles/16160319875092-Reddit-Data-API-Wiki",
     provides: ["Posts and questions matching a query", "Scores and comment counts"],
     notProvided: ["Search volume"],
-    state: "NOT_CONFIGURED",
-    reason: `${NOT_IMPLEMENTED} Needs REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET.`,
+    state: "ACCESS_REQUIRED",
+    reason: `${NOT_IMPLEMENTED} Commercial use requires Reddit's written approval and contract.`,
   }),
-  planned({
-    id: "news",
-    name: "News (GDELT)",
-    group: "News & web",
-    glyph: "N",
-    color: "#38bdf8",
-    access: "GDELT DOC 2.0 API, public, rate-limited to about one request every 5 seconds.",
-    docsUrl: "https://blog.gdeltproject.org/gdelt-doc-2-0-api-debuts/",
-    provides: ["News article coverage volume over time", "Article links"],
-    notProvided: ["Search volume"],
-    state: "NOT_CONFIGURED",
-    reason: NOT_IMPLEMENTED,
-  }),
+  gdelt,
   stackExchange,
   hackerNews,
   wikipedia,

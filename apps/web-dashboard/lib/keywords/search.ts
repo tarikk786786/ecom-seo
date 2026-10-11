@@ -1,7 +1,7 @@
-import { ProviderHttpError, type FetchLike } from "./http";
+import { ProviderHttpError, redactSecrets, type FetchLike, type HttpErrorCategory } from "./http";
 import type { KeywordProvider } from "./provider";
 import { normalizeKeyword } from "./text";
-import { TIME_WINDOWS, type FilterApplication, type KeywordSearchRequest, type KeywordSearchResponse, type ProviderOutcome, type TimeWindow } from "./types";
+import { TIME_WINDOWS, type FilterApplication, type KeywordSearchRequest, type KeywordSearchResponse, type ProviderOutcome, type ProviderState, type TimeWindow } from "./types";
 
 export const MAX_QUERY_LENGTH = 120;
 const DEFAULT_TIMEOUT_MS = 12_000;
@@ -29,6 +29,13 @@ export function validateSearchRequest(body: unknown, known: string[]): Validatio
 }
 
 const applied = (supported: boolean): FilterApplication => (supported ? "applied" : "not_supported");
+
+export function errorState(cat: HttpErrorCategory): ProviderState {
+  if (cat === "rate_limited") return "RATE_LIMITED";
+  if (cat === "timeout") return "DEGRADED";
+  if (cat === "auth") return "ACCESS_REQUIRED";
+  return "ERROR";
+}
 
 function withTimeout<T>(work: (signal: AbortSignal) => Promise<T>, ms: number, parent?: AbortSignal): Promise<T> {
   const controller = new AbortController();
@@ -88,12 +95,12 @@ export async function runKeywordSearch(
         };
       } catch (err) {
         const cat = err instanceof ProviderHttpError ? err.category : "network";
-        const message = err instanceof Error ? err.message : String(err);
+        const message = redactSecrets(err instanceof Error ? err.message : String(err), opts.env);
         return {
           outcome: {
             ...base,
             status: cat === "timeout" ? "timeout" : cat === "rate_limited" ? "rate_limited" : "error",
-            state: cat === "rate_limited" ? "RATE_LIMITED" : cat === "timeout" ? "DEGRADED" : "ERROR",
+            state: errorState(cat),
             message,
             durationMs: Date.now() - started,
             resultCount: 0,
@@ -107,7 +114,13 @@ export async function runKeywordSearch(
     response.outcomes.push(outcome);
     if (!result) continue;
     response.records.push(...result.records);
-    if (result.seedHistory && !response.seedHistory) response.seedHistory = { ...result.seedHistory, provider: outcome.provider };
+    // Seed chart: observed search counts, then other absolute counts (pageviews), then indices (news coverage).
+    const rank = (h: { kind: string; unit: string }) => (h.kind === "absolute" ? (h.unit === "searches" ? 3 : 2) : 1);
+    if (result.seedHistory) {
+      if (!response.seedHistory || rank(result.seedHistory) > rank(response.seedHistory)) {
+        response.seedHistory = { ...result.seedHistory, provider: outcome.provider };
+      }
+    }
     if (result.devices && !response.devices) response.devices = result.devices;
   }
 
