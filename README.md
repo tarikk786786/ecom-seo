@@ -59,3 +59,12 @@ See `BUILD_PROGRESS.md` and `FEATURE_STATUS.md` for what is implemented and veri
 ## Automatic requirements discovery prompt
 
 Use [docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md](docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md) to research official API requirements, access rules, authentication, cost, quotas, and environment-variable needs. It directs the agent to implement viable connectors incrementally and document what still needs account-owner approval.
+
+
+## Cursor Agent workflow
+
+- Persistent repository rules: [`.cursor/rules/ecom-seo.mdc`](.cursor/rules/ecom-seo.mdc) (Cursor Project Rule, always applied).
+- Copy-ready execution prompt: [`docs/CURSOR_AGENT_RUN_PROMPT.md`](docs/CURSOR_AGENT_RUN_PROMPT.md).
+- Generic full requirements-discovery workflow: [`docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md`](docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md).
+
+Open this repository as a local folder in Cursor, let Agent read the project rules, then paste the Cursor run prompt into Agent. Every meaningful tested change should be documented and pushed to GitHub; API access requiring account-owner credentials/approval stays blocked until legitimately configured.
