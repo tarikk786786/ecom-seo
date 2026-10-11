@@ -1,0 +1,51 @@
+---
+description: "Persistent project workflow for Ecom SEO Trend Intelligence AI: verified API data, incremental implementation, previews, testing, and GitHub pushes."
+alwaysApply: true
+---
+
+# Ecom SEO — Cursor Agent project rules
+
+## Source of truth
+- Work in the existing repository `tarikk786786/ecom-seo`, branch `main`.
+- Before changes, inspect the latest Git state and read `README.md`, `docs/MASTER_PRD.md`, `docs/API_INTEGRATION_CATALOG.md`, `docs/KEYWORD_RESEARCH_UI_SPEC.md`, `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md`, `BUILD_PROGRESS.md`, `FEATURE_STATUS.md`, `IMPLEMENTATION_LOG.md`, and `ARCHITECTURE.md`.
+- Keep implementation modular and preserve existing behavior. Do not rebuild from scratch or duplicate frameworks/dependencies without evidence.
+- The reference UI is the dense keyword workspace in `docs/KEYWORD_RESEARCH_UI_SPEC.md`.
+
+## Implementation behavior
+- Implement actual code, not only plans or more prompt documents, whenever the environment allows.
+- Work in small, coherent cycles. Run relevant checks, start/refresh the actual preview, verify the affected flow, fix regressions, update project tracking documents, and commit/push each verified cycle.
+- When the user says `NEXT`, inspect the latest repo state/progress and continue the highest-priority unfinished item. Do not restart or repeat completed work.
+- Always report changed files, commands/tests actually run and their outcomes, real preview or reproducible launch instructions, remaining blockers, and the commit SHA/link after a push.
+
+## Data integrity
+- Never invent search volume, CPC, bid ranges, competition, ranking, prices, product availability, chart points, data freshness, provider links, or successful API states.
+- Preserve provider, source URL/ID, geographic/language context, metric unit/definition/window, observation time, and retrieval time.
+- Distinguish observed, derived, estimated and AI-generated results. Google Trends relative interest is not absolute search volume. Page views, social engagement and marketplace listing counts are not search volume.
+- A provider may be shown as CONNECTED only after an authorized live request succeeds. A docs link, reachable URL, mocked test or configured key alone is not proof of a working live integration.
+- Return partial results when some providers fail and show a truthful status per provider. Never substitute demo records into production result paths.
+
+## API research and credentials
+- For new/updated integrations, use current official docs, endpoint references, pricing, quota and terms. Verify the exact API product and keep affiliate, seller, public and account-owner APIs separate.
+- Never bypass OAuth, account approval, paywalls, rate limits, CAPTCHAs or terms. Do not scrape browsers/cookies or unrelated files for secrets.
+- Never print or commit secrets. Check only whether relevant expected environment variables are present; never echo their values. Put placeholder names only in `.env.example`.
+- Do not buy credits, start paid subscriptions, deploy paid resources, run large billable jobs, delete data or apply destructive production migrations without explicit authorization.
+- For unavailable credentials/approvals, finish safe independent implementation and clearly mark live verification blocked.
+
+## Security and quality
+- Keep privileged keys server-side; do not expose service-role keys, private API keys, payment secrets or tokens in browser bundles, logs or Git.
+- Preserve tenant authorization, Supabase RLS, minimal permissions, provider licensing/retention constraints, input validation, rate limiting, secret redaction and safe URL handling.
+- Audit dependencies and use compatible pinned package versions and lockfiles.
+- Run relevant typecheck, lint, unit/contract/integration tests and production build. Do not claim a command passed unless it actually ran.
+- For meaningful UI changes, provide a real running preview or browser screenshot when available, check desktop/mobile layouts and functionality, and disclose if preview access is blocked.
+
+## Git workflow
+- Inspect `git status`, branch and remote HEAD before editing.
+- Never overwrite unrelated user changes, discard uncommitted work, or force-push.
+- Before committing, inspect the diff and run a secret scan.
+- Commit with a specific message, push to `main`, and verify the remote commit. If a push fails, report the exact error; do not claim success.
+- Keep `BUILD_PROGRESS.md`, `FEATURE_STATUS.md`, `IMPLEMENTATION_LOG.md`, and `ARCHITECTURE.md` accurate. Mark features TESTED or LIVE only when evidence exists.
+
+## Canonical workflows
+- For exhaustive API research/setup, execute `docs/AUTO_REQUIREMENT_DISCOVERY_PROMPT.md` and maintain `docs/API_REQUIREMENTS_MATRIX.md` and `docs/REQUIREMENTS_CHECKLIST.md`.
+- For the keyword research UI, follow `docs/KEYWORD_RESEARCH_UI_SPEC.md`.
+- For overall scope, follow `docs/MASTER_PRD.md`.
