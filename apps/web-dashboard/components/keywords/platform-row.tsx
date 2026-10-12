@@ -66,7 +66,7 @@ export function PlatformRow({
               Close
             </button>
           </div>
-          {detail.detail && <p className="mt-1 text-zinc-400">{detail.detail}</p>}
+          {detail.detail && <p className="mt-1 text-zinc-400">{detail.detail.replace(/^Adapter implemented; credentials missing:/, "To connect, add:")}</p>}
           <p className="mt-1 text-zinc-400">
             <span className="text-zinc-500">Access: </span>
             {detail.access}{" "}

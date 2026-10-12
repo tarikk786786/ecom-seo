@@ -15,7 +15,7 @@ function SourceRow({ p }: { p: ProviderStatus }) {
       <div className="min-w-0">
         <p className="text-sm font-medium text-zinc-200">{p.name}</p>
         <p className="mt-0.5 text-xs text-zinc-400">{p.provides.join(" · ")}</p>
-        {p.state !== "CONNECTED" && <p className="mt-1 text-xs text-zinc-500">{p.detail ?? p.access}</p>}
+        {p.state !== "CONNECTED" && <p className="mt-1 text-xs text-zinc-500">{(p.detail ?? p.access).replace(/^Adapter implemented; credentials missing:/, "To connect, add:")}</p>}
         <a href={p.docsUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-sky-400 hover:text-sky-300">
           Provider documentation ↗
         </a>
