@@ -16,8 +16,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const env = readSupabaseEnv();
   const user = await getCurrentUser();
   return (
-    <html lang="en">
-      <body className="min-h-screen antialiased">
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
         <div className="lg:flex">
           <Nav userEmail={user?.email} />
           <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
