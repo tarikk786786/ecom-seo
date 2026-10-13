@@ -8,6 +8,7 @@ import { etsy, parseEtsy } from "@/lib/keywords/providers/etsy";
 import { flipkart, parseFlipkart } from "@/lib/keywords/providers/flipkart";
 import { buildGdeltQuery, parseGdeltTimeline } from "@/lib/keywords/providers/gdelt";
 import { geoTargetConstant, googleAds, googleAdsErrorCode, languageConstant, parseKeywordIdeas } from "@/lib/keywords/providers/google-ads";
+import { parseEbaySuggest, parseGoogleSuggest } from "@/lib/keywords/providers/public-suggest";
 import { youtube } from "@/lib/keywords/providers/youtube";
 import { PROVIDERS } from "@/lib/keywords/registry";
 import { runKeywordSearch } from "@/lib/keywords/search";
@@ -104,11 +105,10 @@ describe("http hardening", () => {
 });
 
 describe("credential handling", () => {
-  const credentialed = ["google-ads", "youtube", "amazon", "flipkart", "etsy", "ebay"];
+  const credentialed = [googleAds, youtube, amazonCreators, flipkart, etsy, ebay];
 
   it("reports implemented adapters without credentials as NOT_CONFIGURED and names the missing variables", () => {
-    for (const id of credentialed) {
-      const p = PROVIDERS.find((x) => x.id === id)!;
+    for (const p of credentialed) {
       expect(p.implemented).toBe(true);
       const c = p.configuration({ env: {} });
       expect(c.ok).toBe(false);
@@ -129,6 +129,55 @@ describe("credential handling", () => {
   it("validates the Google Ads customer ID format", () => {
     const env = { GOOGLE_ADS_DEVELOPER_TOKEN: "d", GOOGLE_ADS_CLIENT_ID: "c", GOOGLE_ADS_CLIENT_SECRET: "s", GOOGLE_ADS_REFRESH_TOKEN: "r", GOOGLE_ADS_CUSTOMER_ID: "12-34" };
     expect(googleAds.configuration({ env })).toMatchObject({ ok: false, state: "ERROR" });
+  });
+});
+
+describe("keyless public sources", () => {
+  const byId = (id: string) => PROVIDERS.find((p) => p.id === id)!;
+
+  it("uses Amazon's marketplace suggestions when Creators API credentials are missing", async () => {
+    const f = mockFetch([[/completion\.amazon\.co\.uk/, () => json({ suggestions: [{ value: "air fryer", type: "KEYWORD" }, { value: "air fryer liners", type: "KEYWORD" }, { value: "x", type: "WIDGET" }] })]]);
+    const { res, outcome } = await run(byId("amazon"), {}, f, { country: "GB" });
+    expect(outcome.status).toBe("ok");
+    expect(res.records.map((r) => r.keyword)).toEqual(["air fryer", "air fryer liners"]);
+    expect(res.records[0]!.sourceUrl).toBe("https://www.amazon.co.uk/s?k=air%20fryer");
+    expect(res.records[0]!.metrics).toEqual([]);
+    expect(outcome.message).toMatch(/AMAZON_CREATORS_CREDENTIAL_ID/);
+  });
+
+  it("calls the official API instead once credentials are set", async () => {
+    const f = mockFetch([[/completion\.amazon/, () => json({ suggestions: [] })]]);
+    const env = { AMAZON_CREATORS_CREDENTIAL_ID: "i", AMAZON_CREATORS_CREDENTIAL_SECRET: "s", AMAZON_PARTNER_TAG: "t-21" };
+    await run(byId("amazon"), env, f).catch(() => undefined);
+    expect(f.calls.some((c) => /completion\.amazon/.test(c.url))).toBe(false);
+  });
+
+  it("parses eBay's JSONP suggestions and refuses countries without an eBay site", async () => {
+    expect(parseEbaySuggest('/**/vjo.AutoFill._do({"prefix":"a","res":{"sug":["air fryer oven","air fryer"]}})')).toEqual(["air fryer oven", "air fryer"]);
+    const f = mockFetch([]);
+    const { outcome } = await run(byId("ebay"), {}, f, { country: "IN" });
+    expect(outcome.status).toBe("error");
+    expect(f.calls).toHaveLength(0);
+  });
+
+  it("passes country and language to Google and YouTube suggestions", async () => {
+    const f = mockFetch([[/suggestqueries/, () => json(["air fryer", ["air fryer price", "how to use air fryer"]])]]);
+    const { res } = await run(byId("youtube"), {}, f, { country: "IN", language: "hi" });
+    expect(f.calls[0]!.url).toMatch(/ds=yt&hl=hi&gl=IN/);
+    expect(res.records.map((r) => r.category)).toEqual(["suggestion", "question"]);
+    expect(parseGoogleSuggest('["q",["a","b"]]')).toEqual(["a", "b"]);
+  });
+
+  it("falls back to Google News when GDELT fails", async () => {
+    const xml = `<rss><channel><item><title>Air fryer sales jump</title><link>https://news.example/a</link><pubDate>Mon, 12 Oct 2026 10:00:00 GMT</pubDate></item></channel></rss>`;
+    const f = mockFetch([
+      [/gdeltproject/, () => new Response("busy", { status: 429 })],
+      [/news\.google\.com/, () => new Response(xml)],
+    ]);
+    const { res, outcome } = await run(byId("news"), {}, f);
+    expect(outcome.status).toBe("ok");
+    expect(res.records[0]).toMatchObject({ keyword: "Air fryer sales jump", sourceUrl: "https://news.example/a", category: "related" });
+    expect(outcome.message).toMatch(/GDELT unavailable/);
   });
 });
 
