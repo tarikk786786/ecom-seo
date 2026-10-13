@@ -1,5 +1,6 @@
 import { missingEnv, ProviderHttpError, requestJson } from "../http";
 import type { KeywordProvider } from "../provider";
+import { googleGeoId } from "./google-ads";
 import { isQuestion, normalizeKeyword, recordId } from "../text";
 import type { History, KeywordRecord, Metric } from "../types";
 
@@ -139,13 +140,15 @@ export const dataforseo: KeywordProvider = {
   },
 
   async search(req, ctx) {
+    const locationCode = googleGeoId(req.country);
+    if (!locationCode) return { records: [], message: `No DataForSEO location mapped for country ${req.country}.` };
     const body = await requestJson<unknown>(API, {
       method: "POST",
       headers: { authorization: authHeader(ctx.env), "content-type": "application/json" },
       body: JSON.stringify([
         {
           keywords: [req.query],
-          location_code: req.country === "IN" ? 2356 : 2840,
+          location_code: locationCode,
           language_code: req.language || "en",
         },
       ]),

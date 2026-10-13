@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { cachedToken, clearTokenCache, createThrottle, ProviderHttpError, redactSecrets, requestJson, requestText, type FetchLike } from "@/lib/keywords/http";
 import type { KeywordProvider } from "@/lib/keywords/provider";
 import { amazonCreators, parseAmazonItems } from "@/lib/keywords/providers/amazon-creators";
+import { dataforseo } from "@/lib/keywords/providers/dataforseo";
 import { ebay, parseEbay } from "@/lib/keywords/providers/ebay";
 import { etsy, parseEtsy } from "@/lib/keywords/providers/etsy";
 import { flipkart, parseFlipkart } from "@/lib/keywords/providers/flipkart";
@@ -128,6 +129,24 @@ describe("credential handling", () => {
   it("validates the Google Ads customer ID format", () => {
     const env = { GOOGLE_ADS_DEVELOPER_TOKEN: "d", GOOGLE_ADS_CLIENT_ID: "c", GOOGLE_ADS_CLIENT_SECRET: "s", GOOGLE_ADS_REFRESH_TOKEN: "r", GOOGLE_ADS_CUSTOMER_ID: "12-34" };
     expect(googleAds.configuration({ env })).toMatchObject({ ok: false, state: "ERROR" });
+  });
+});
+
+describe("DataForSEO", () => {
+  const env = { DATAFORSEO_LOGIN: "login", DATAFORSEO_PASSWORD: "pw" };
+
+  it("sends the selected country's location code", async () => {
+    const f = mockFetch([[/dataforseo/, () => json({ tasks: [{ result: [{ keyword: "air fryer", search_volume: 1000 }] }] })]]);
+    const { outcome } = await run(dataforseo, env, f, { country: "GB" });
+    expect(outcome.status).toBe("ok");
+    expect(JSON.parse(String(f.calls[0]!.init!.body))[0].location_code).toBe(2826);
+  });
+
+  it("returns nothing instead of another country's figures for unmapped countries", async () => {
+    const f = mockFetch([]);
+    const { res } = await run(dataforseo, env, f, { country: "ZZ" });
+    expect(f.calls).toHaveLength(0);
+    expect(res.records).toHaveLength(0);
   });
 });
 

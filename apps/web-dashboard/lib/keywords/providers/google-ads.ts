@@ -14,7 +14,9 @@ const ISO_NUMERIC: Record<string, number> = {
   IN: 356, US: 840, GB: 826, CA: 124, AU: 36, DE: 276, FR: 250, ES: 724, IT: 380, NL: 528, BR: 76, MX: 484,
   JP: 392, KR: 410, ID: 360, PH: 608, SG: 702, AE: 784, SA: 682, PK: 586, BD: 50, NG: 566, ZA: 710, TR: 792,
 };
-export const geoTargetConstant = (country: string) => (ISO_NUMERIC[country] ? `geoTargetConstants/${2000 + ISO_NUMERIC[country]}` : undefined);
+/** Google geo target ID (also used as DataForSEO `location_code`). */
+export const googleGeoId = (country: string) => (ISO_NUMERIC[country] ? 2000 + ISO_NUMERIC[country] : undefined);
+export const geoTargetConstant = (country: string) => (googleGeoId(country) ? `geoTargetConstants/${googleGeoId(country)}` : undefined);
 
 /** Language criterion IDs from https://developers.google.com/google-ads/api/data/codes-formats#languages */
 const LANGUAGE_IDS: Record<string, number> = {
