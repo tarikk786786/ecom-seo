@@ -7,7 +7,7 @@ import { flipkart } from "./providers/flipkart";
 import { gdelt } from "./providers/gdelt";
 import { googleAds } from "./providers/google-ads";
 import { googleTrendsRss } from "./providers/google-trends-rss";
-import { amazonFallback, ebayFallback, googleFallback, withNewsFallback, withPublicFallback, youtubeFallback } from "./providers/public-suggest";
+import { amazonFallback, ebayFallback, googleFallback, redditFallback, withNewsFallback, withPublicFallback, youtubeFallback } from "./providers/public-suggest";
 import { reddit } from "./providers/reddit";
 import { stackExchange } from "./providers/stackexchange";
 import { wikipedia } from "./providers/wikipedia";
@@ -26,7 +26,7 @@ export const PROVIDERS: KeywordProvider[] = [
   withPublicFallback(youtube, youtubeFallback, "YouTube's public search suggestions are used."),
   wikipedia,
   withNewsFallback(gdelt),
-  reddit,
+  withPublicFallback(reddit, redditFallback, "Reddit's public search feed is used (rate limited)."),
   { ...stackExchange, defaultEnabled: false },
 ];
 

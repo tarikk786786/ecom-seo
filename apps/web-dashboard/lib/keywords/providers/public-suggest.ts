@@ -182,6 +182,69 @@ export async function googleNews(query: string, req: Pick<KeywordSearchRequest, 
   return { records, message: `${records.length} headlines from Google News.` };
 }
 
+// --- Reddit search RSS --------------------------------------------------------------------
+
+type AtomEntry = { title?: string; link?: { "@_href"?: string } | { "@_href"?: string }[]; published?: string; updated?: string; category?: { "@_label"?: string } };
+const atom = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", processEntities: true, isArray: (n) => n === "entry" });
+const REDDIT_TTL_MS = 10 * 60_000;
+const redditCache = new Map<string, { at: number; xml: string }>();
+
+export function parseRedditRss(xml: string, fetchedAt: string): KeywordRecord[] {
+  let entries: AtomEntry[] | undefined;
+  try {
+    entries = (atom.parse(xml) as { feed?: { entry?: AtomEntry[] } }).feed?.entry;
+  } catch {
+    throw new ProviderHttpError("Reddit feed could not be parsed", "parse");
+  }
+  if (!entries) return [];
+  return entries.flatMap((e) => {
+    const title = typeof e.title === "string" ? e.title.trim() : "";
+    const link = (Array.isArray(e.link) ? e.link[0] : e.link)?.["@_href"];
+    if (!title || !link?.includes("/comments/")) return [];
+    const category = isQuestion(title) ? ("question" as const) : ("related" as const);
+    const sub = e.category?.["@_label"];
+    return [
+      {
+        id: recordId("reddit", category, link),
+        keyword: title,
+        normalized: normalizeKeyword(title),
+        category,
+        provider: "reddit",
+        method: `Reddit search RSS (public)${sub ? ` · ${sub}` : ""}`,
+        dataType: "observed" as const,
+        sourceUrl: link,
+        fetchedAt,
+        observedAt: e.published ?? e.updated,
+        metrics: [],
+      },
+    ];
+  });
+}
+
+const REDDIT_T: Record<string, string> = { "30d": "month", "90d": "year", "12m": "year", "24m": "all" };
+
+async function redditRss(query: string, window: string, ctx: Pick<ProviderContext, "fetchImpl" | "signal" | "now">): Promise<string> {
+  const url = `https://www.reddit.com/search.rss?q=${encodeURIComponent(query)}&sort=relevance&t=${REDDIT_T[window] ?? "year"}&limit=25`;
+  const hit = redditCache.get(url);
+  if (hit && ctx.now.getTime() - hit.at < REDDIT_TTL_MS) return hit.xml;
+  if (!throttles.has("reddit")) throttles.set("reddit", createThrottle(2000));
+  const xml = await throttles.get("reddit")!(() => getText(url, { fetchImpl: ctx.fetchImpl, signal: ctx.signal, timeoutMs: 10_000 }), ctx.signal);
+  redditCache.set(url, { at: ctx.now.getTime(), xml });
+  return xml;
+}
+
+export const redditFallback: Fallback = {
+  provides: ["Reddit post titles matching your query, with links (public search feed, no key)"],
+  supports: { country: false, language: false, window: true },
+  async search(req, ctx) {
+    const records = parseRedditRss(await redditRss(req.query, req.window, ctx), ctx.now.toISOString());
+    return { records, message: `${records.length} posts from Reddit search.` };
+  },
+  async liveCheck(ctx) {
+    await redditRss("product review", "30d", ctx);
+  },
+};
+
 // --- Wrappers -----------------------------------------------------------------------------
 
 type Fallback = {
@@ -198,7 +261,7 @@ export function withPublicFallback(primary: KeywordProvider, fb: Fallback, missi
     ...primary,
     access: `${primary.access} Without credentials, ${missingNote}`,
     provides: [...fb.provides, ...primary.provides.map((p) => `${p} (with API credentials)`)],
-    supports: { country: primary.supports.country && fb.supports.country, language: primary.supports.language && fb.supports.language, window: primary.supports.window && fb.supports.window },
+    supports: fb.supports,
     defaultEnabled: true,
     configuration: () => ({ ok: true }),
     async liveCheck(ctx) {
@@ -209,7 +272,8 @@ export function withPublicFallback(primary: KeywordProvider, fb: Fallback, missi
       if (official(ctx.env) && primary.search) return primary.search(req, ctx);
       const res = await fb.search(req, ctx);
       const missing = primary.configuration({ env: ctx.env });
-      const hint = missing.ok ? "" : ` ${missing.reason.replace(/^Adapter implemented; credentials missing:/, "Add")} for full API data.`;
+      const vars = missing.ok ? undefined : missing.reason.match(/credentials missing: ([A-Z0-9_, ]+)/)?.[1];
+      const hint = vars ? ` Add ${vars.trim()} for full API data.` : "";
       return { ...res, message: `${res.message ?? ""}${hint}`.trim() };
     },
   };

@@ -168,6 +168,15 @@ describe("keyless public sources", () => {
     expect(parseGoogleSuggest('["q",["a","b"]]')).toEqual(["a", "b"]);
   });
 
+  it("reads Reddit's public search feed without credentials", async () => {
+    const xml = `<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>Which air fryer should I buy?</title><link href="https://www.reddit.com/r/Cooking/comments/1/x/"/><category term="Cooking" label="r/Cooking"/><published>2026-10-01T10:00:00+00:00</published></entry></feed>`;
+    const f = mockFetch([[/reddit\.com\/search\.rss/, () => new Response(xml)]]);
+    const { res, outcome } = await run(byId("reddit"), {}, f);
+    expect(outcome.status).toBe("ok");
+    expect(res.records[0]).toMatchObject({ keyword: "Which air fryer should I buy?", category: "question", sourceUrl: "https://www.reddit.com/r/Cooking/comments/1/x/" });
+    expect(outcome.message).toBe("1 posts from Reddit search. Add REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET for full API data.");
+  });
+
   it("falls back to Google News when GDELT fails", async () => {
     const xml = `<rss><channel><item><title>Air fryer sales jump</title><link>https://news.example/a</link><pubDate>Mon, 12 Oct 2026 10:00:00 GMT</pubDate></item></channel></rss>`;
     const f = mockFetch([
