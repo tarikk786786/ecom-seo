@@ -26,6 +26,11 @@ async function check(): Promise<ProviderStatus[]> {
   );
 }
 
+/** Forces the next status read to re-run live checks (after credentials change). */
+export function invalidateProviderStatuses() {
+  cache = undefined;
+}
+
 export async function getProviderStatuses(): Promise<{ providers: ProviderStatus[]; checkedAt: string }> {
   if (!cache || Date.now() - cache.at > CHECK_TTL_MS) {
     inflight ??= check().finally(() => (inflight = undefined));

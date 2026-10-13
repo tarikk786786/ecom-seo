@@ -396,9 +396,17 @@ export function withPublicFallback(primary: KeywordProvider, fb: Fallback, missi
       return fb.liveCheck(ctx);
     },
     async search(req, ctx) {
-      if (official(ctx.env) && primary.search) return primary.search(req, ctx);
-      const res = await fb.search(req, ctx);
-      return res;
+      if (official(ctx.env) && primary.search) {
+        try {
+          return await primary.search(req, ctx);
+        } catch (err) {
+          // Rejected keys shouldn't take the platform offline; the public source still works.
+          if (!(err instanceof ProviderHttpError) || err.category !== "auth" || ctx.signal?.aborted) throw err;
+          const res = await fb.search(req, ctx);
+          return { ...res, message: `${res.message ?? ""} Your ${primary.name} API keys were rejected, so free public data was used.`.trim() };
+        }
+      }
+      return fb.search(req, ctx);
     },
   };
 }
