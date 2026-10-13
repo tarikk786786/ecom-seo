@@ -77,11 +77,16 @@ export function parseAmazonSuggest(body: string): string[] {
   }
 }
 
+class Unavailable extends Error {}
+
 export async function amazonSuggest(query: string, country: string, opts: Opts): Promise<Suggest> {
   const m = AMAZON_MARKETS[country];
-  if (!m) throw new ProviderHttpError(`No Amazon marketplace for ${country}`, "http", 404);
+  if (!m) throw new Unavailable(`Amazon has no marketplace for ${country}.`);
   const url = `https://completion.${m.domain}/api/2017/suggestions?limit=11&prefix=${encodeURIComponent(query)}&suggestion-type=KEYWORD&page-type=Gateway&site-variant=desktop&client-info=amazon-search-ui&mid=${m.mid}&alias=aps`;
-  const body = await throttled(`amazon:${m.domain}`, () => getText(url, { ...opts, timeoutMs: 8000, retries: 1 }), opts.signal);
+  const body = await throttled(`amazon:${m.domain}`, () => getText(url, { ...opts, timeoutMs: 8000, retries: 1 }), opts.signal).catch((err) => {
+    if (err instanceof ProviderHttpError && err.category === "http") throw new ProviderHttpError(`${m.domain} search suggestions are not responding right now (HTTP ${err.status}). Add Creators API keys for reliable ${m.domain} data.`, "http", err.status);
+    throw err;
+  });
   return { list: parseAmazonSuggest(body), country, label: `${m.domain} search suggestions (public autocomplete)`, searchUrl: (kw) => `https://www.${m.domain}/s?k=${encodeURIComponent(kw)}` };
 }
 
@@ -111,7 +116,7 @@ export function parseEbaySuggest(body: string): string[] {
 
 export async function ebaySuggest(query: string, country: string, opts: Opts): Promise<Suggest> {
   const s = EBAY_SITES[country];
-  if (!s) throw new ProviderHttpError(`eBay has no site for ${country}`, "http", 404);
+  if (!s) throw new Unavailable(`eBay has no site for ${country}. Available: ${Object.keys(EBAY_SITES).join(", ")}.`);
   const body = await throttled("ebay", () => getText(`https://autosug.ebay.com/autosug?kwd=${encodeURIComponent(query)}&sId=${s.site}&_rs=1`, { ...opts, timeoutMs: 8000, retries: 1 }), opts.signal);
   return { list: parseEbaySuggest(body), country, label: `${s.domain} search suggestions (public autocomplete)`, searchUrl: (kw) => `https://www.${s.domain}/sch/i.html?_nkw=${encodeURIComponent(kw)}` };
 }
@@ -271,10 +276,7 @@ export function withPublicFallback(primary: KeywordProvider, fb: Fallback, missi
     async search(req, ctx) {
       if (official(ctx.env) && primary.search) return primary.search(req, ctx);
       const res = await fb.search(req, ctx);
-      const missing = primary.configuration({ env: ctx.env });
-      const vars = missing.ok ? undefined : missing.reason.match(/credentials missing: ([A-Z0-9_, ]+)/)?.[1];
-      const hint = vars ? ` Add ${vars.trim()} for full API data.` : "";
-      return { ...res, message: `${res.message ?? ""}${hint}`.trim() };
+      return res;
     },
   };
 }
@@ -283,7 +285,13 @@ const suggestFallback = (provider: string, fetch: (req: KeywordSearchRequest, op
   provides,
   supports,
   async search(req, ctx) {
-    const s = await fetch(req, { fetchImpl: ctx.fetchImpl, signal: ctx.signal });
+    let s: Suggest;
+    try {
+      s = await fetch(req, { fetchImpl: ctx.fetchImpl, signal: ctx.signal });
+    } catch (err) {
+      if (err instanceof Unavailable) return { records: [], message: err.message };
+      throw err;
+    }
     const records = suggestionRecords(provider, s, ctx.now.toISOString());
     return { records, message: `${records.length} suggestions from ${s.label}.` };
   },
@@ -309,8 +317,11 @@ export const youtubeFallback = suggestFallback("youtube", (r, o) => googleSugges
   "YouTube search autocomplete suggestions (no key)",
 ]);
 
-/** GDELT first; Google News RSS when GDELT is unreachable or rate limited. */
+const GDELT_BACKOFF_MS = 5 * 60_000;
+
+/** GDELT first; Google News RSS when GDELT is unreachable or rate limited (GDELT is then skipped for a while). */
 export function withNewsFallback(primary: KeywordProvider): KeywordProvider {
+  let skipUntil = 0;
   return {
     ...primary,
     name: "News",
@@ -325,13 +336,16 @@ export function withNewsFallback(primary: KeywordProvider): KeywordProvider {
       }
     },
     async search(req, ctx) {
-      try {
-        return await primary.search!(req, ctx);
-      } catch (err) {
-        if (ctx.signal?.aborted) throw err;
-        const r = await googleNews(req.query, req, ctx);
-        return { ...r, message: `GDELT unavailable; ${r.message}` };
+      if (ctx.now.getTime() >= skipUntil) {
+        try {
+          return await primary.search!(req, ctx);
+        } catch (err) {
+          if (ctx.signal?.aborted) throw err;
+          skipUntil = ctx.now.getTime() + GDELT_BACKOFF_MS;
+        }
       }
+      const r = await googleNews(req.query, req, ctx);
+      return { ...r, message: `${r.message} GDELT is unavailable right now.` };
     },
   };
 }

@@ -101,9 +101,11 @@ export function KeywordWorkspace() {
   const selectedProviders = selected.map((id) => byId[id]).filter(Boolean) as ProviderStatus[];
 
   const toggleProvider = (id: string) => {
-    const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
-    setSelected(next);
-    setSettings((s) => ({ ...s, providers: next }));
+    setSelected((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      setSettings((s) => ({ ...s, providers: next }));
+      return next;
+    });
   };
 
   const runSearch = useCallback(

@@ -142,7 +142,14 @@ describe("keyless public sources", () => {
     expect(res.records.map((r) => r.keyword)).toEqual(["air fryer", "air fryer liners"]);
     expect(res.records[0]!.sourceUrl).toBe("https://www.amazon.co.uk/s?k=air%20fryer");
     expect(res.records[0]!.metrics).toEqual([]);
-    expect(outcome.message).toMatch(/AMAZON_CREATORS_CREDENTIAL_ID/);
+    expect(outcome.message).toBe("2 suggestions from amazon.co.uk search suggestions (public autocomplete).");
+  });
+
+  it("explains an Amazon suggestion outage in plain language", async () => {
+    const f = mockFetch([[/completion\.amazon\.in/, () => new Response("bad gateway", { status: 502 })]]);
+    const { outcome } = await run(byId("amazon"), {}, f, { country: "IN" });
+    expect(outcome.status).toBe("error");
+    expect(outcome.message).toMatch(/amazon\.in search suggestions are not responding right now \(HTTP 502\)/);
   });
 
   it("calls the official API instead once credentials are set", async () => {
@@ -156,7 +163,8 @@ describe("keyless public sources", () => {
     expect(parseEbaySuggest('/**/vjo.AutoFill._do({"prefix":"a","res":{"sug":["air fryer oven","air fryer"]}})')).toEqual(["air fryer oven", "air fryer"]);
     const f = mockFetch([]);
     const { outcome } = await run(byId("ebay"), {}, f, { country: "IN" });
-    expect(outcome.status).toBe("error");
+    expect(outcome.status).toBe("empty");
+    expect(outcome.message).toMatch(/eBay has no site for IN/);
     expect(f.calls).toHaveLength(0);
   });
 
@@ -174,7 +182,7 @@ describe("keyless public sources", () => {
     const { res, outcome } = await run(byId("reddit"), {}, f);
     expect(outcome.status).toBe("ok");
     expect(res.records[0]).toMatchObject({ keyword: "Which air fryer should I buy?", category: "question", sourceUrl: "https://www.reddit.com/r/Cooking/comments/1/x/" });
-    expect(outcome.message).toBe("1 posts from Reddit search. Add REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET for full API data.");
+    expect(outcome.message).toBe("1 posts from Reddit search.");
   });
 
   it("falls back to Google News when GDELT fails", async () => {
@@ -186,7 +194,11 @@ describe("keyless public sources", () => {
     const { res, outcome } = await run(byId("news"), {}, f);
     expect(outcome.status).toBe("ok");
     expect(res.records[0]).toMatchObject({ keyword: "Air fryer sales jump", sourceUrl: "https://news.example/a", category: "related" });
-    expect(outcome.message).toMatch(/GDELT unavailable/);
+    expect(outcome.message).toMatch(/GDELT is unavailable right now/);
+
+    const again = await run(byId("news"), {}, f);
+    expect(again.outcome.status).toBe("ok");
+    expect(f.calls.filter((c) => /gdeltproject/.test(c.url))).toHaveLength(1);
   });
 });
 
