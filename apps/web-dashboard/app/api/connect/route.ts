@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     await provider?.liveCheck?.({ env: process.env, now: new Date() });
     return NextResponse.json({ ok: true, live: true, latencyMs: Date.now() - started, message: `Saved. ${platform.name} answered a live test in ${Date.now() - started} ms.` }, { headers: noStore });
   } catch (err) {
-    const detail = redactSecrets(err instanceof Error ? err.message : String(err), process.env);
+    const detail = redactSecrets(err instanceof Error ? err.message : String(err), process.env).replace(/[.\s]+$/, "");
     const auth = err instanceof ProviderHttpError && err.category === "auth";
     return NextResponse.json(
       { ok: true, live: false, message: auth ? `Saved, but ${platform.name} rejected these keys: ${detail}. Double-check them, or wait if the app is still being reviewed.` : `Saved, but the live test failed: ${detail}` },
