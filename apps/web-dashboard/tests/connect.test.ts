@@ -36,6 +36,7 @@ describe("isLocalRequest", () => {
   it("accepts same-origin requests to localhost", () => {
     expect(isLocalRequest(h({ host: "localhost:3000", origin: "http://localhost:3000", "sec-fetch-site": "same-origin" }))).toBe(true);
     expect(isLocalRequest(h({ host: "127.0.0.1:3000", "sec-fetch-site": "none" }))).toBe(true);
+    expect(isLocalRequest(h({ host: "localhost:3000", "x-forwarded-for": "::1", "x-forwarded-host": "localhost:3000" }))).toBe(true);
   });
   it("refuses hosted, proxied and cross-site requests", () => {
     expect(isLocalRequest(h({ host: "seo.example.com" }))).toBe(false);

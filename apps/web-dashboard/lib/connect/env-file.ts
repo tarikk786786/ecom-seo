@@ -53,7 +53,15 @@ export function isLocalRequest(headers: Headers): boolean {
   const host = (headers.get("host") ?? "").toLowerCase();
   const local = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host);
   if (!local) return false;
-  if (headers.get("x-forwarded-for") || headers.get("x-real-ip") || headers.get("forwarded")) return false;
+  // Next.js itself sets x-forwarded-* from the socket, so they're allowed only when every hop is loopback.
+  const loopback = (ip: string) => /^(127\.\d+\.\d+\.\d+|::1|::ffff:127\.\d+\.\d+\.\d+|localhost)$/i.test(ip.trim().replace(/^\[|\]$/g, ""));
+  const fwd = headers.get("x-forwarded-for");
+  if (fwd && !fwd.split(",").every(loopback)) return false;
+  const realIp = headers.get("x-real-ip");
+  if (realIp && !loopback(realIp)) return false;
+  const fwdHost = headers.get("x-forwarded-host");
+  if (fwdHost && fwdHost.toLowerCase() !== host) return false;
+  if (headers.get("forwarded")) return false;
   const origin = headers.get("origin");
   if (origin) {
     try {
