@@ -7,7 +7,7 @@ import { flipkart } from "./providers/flipkart";
 import { gdelt } from "./providers/gdelt";
 import { googleAds } from "./providers/google-ads";
 import { googleTrendsRss } from "./providers/google-trends-rss";
-import { amazonFallback, ebayFallback, googleFallback, redditFallback, withNewsFallback, withPublicFallback, youtubeFallback } from "./providers/public-suggest";
+import { amazonFallback, ebayFallback, flipkartFallback, googleFallback, redditFallback, withNewsFallback, withPublicFallback, youtubeFallback } from "./providers/public-suggest";
 import { reddit } from "./providers/reddit";
 import { stackExchange } from "./providers/stackexchange";
 import { wikipedia } from "./providers/wikipedia";
@@ -17,7 +17,7 @@ import type { ProviderState } from "./types";
 /** Only sources with a working adapter. Marketplaces first, then search demand, then context. */
 export const PROVIDERS: KeywordProvider[] = [
   withPublicFallback(amazonCreators, amazonFallback, "Amazon's public search suggestions are used."),
-  flipkart,
+  withPublicFallback(flipkart, flipkartFallback, "Flipkart's public search results page is used."),
   withPublicFallback(ebay, ebayFallback, "eBay's public search suggestions are used."),
   etsy,
   { ...withPublicFallback(googleAds, googleFallback, "Google's public search suggestions are used."), name: "Google Search" },

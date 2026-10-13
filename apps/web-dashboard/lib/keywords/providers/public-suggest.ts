@@ -79,13 +79,22 @@ export function parseAmazonSuggest(body: string): string[] {
 
 class Unavailable extends Error {}
 
+const AMAZON_ALT_HOST = "amazon.co.uk";
+
 export async function amazonSuggest(query: string, country: string, opts: Opts): Promise<Suggest> {
   const m = AMAZON_MARKETS[country];
   if (!m) throw new Unavailable(`Amazon has no marketplace for ${country}.`);
-  const url = `https://completion.${m.domain}/api/2017/suggestions?limit=11&prefix=${encodeURIComponent(query)}&suggestion-type=KEYWORD&page-type=Gateway&site-variant=desktop&client-info=amazon-search-ui&mid=${m.mid}&alias=aps`;
-  const body = await throttled(`amazon:${m.domain}`, () => getText(url, { ...opts, timeoutMs: 8000, retries: 1 }), opts.signal).catch((err) => {
-    if (err instanceof ProviderHttpError && err.category === "http") throw new ProviderHttpError(`${m.domain} search suggestions are not responding right now (HTTP ${err.status}). Add Creators API keys for reliable ${m.domain} data.`, "http", err.status);
-    throw err;
+  const url = (host: string) =>
+    `https://completion.${host}/api/2017/suggestions?limit=11&prefix=${encodeURIComponent(query)}&suggestion-type=KEYWORD&page-type=Gateway&site-variant=desktop&client-info=amazon-search-ui&mid=${m.mid}&alias=aps`;
+  const get = (host: string) => throttled(`amazon:${host}`, () => getText(url(host), { ...opts, timeoutMs: 8000, retries: 1 }), opts.signal);
+  // Suggestions are keyed by marketplace ID, so another Amazon completion host returns the same
+  // marketplace's data when the local one is down (completion.amazon.in answers 502).
+  const body = await get(m.domain).catch((err) => {
+    if (!(err instanceof ProviderHttpError) || (err.category !== "http" && err.category !== "network" && err.category !== "timeout")) throw err;
+    return get(m.domain === AMAZON_ALT_HOST ? "amazon.com" : AMAZON_ALT_HOST).catch((alt) => {
+      if (alt instanceof ProviderHttpError && alt.category === "http") throw new ProviderHttpError(`${m.domain} search suggestions are not responding right now (HTTP ${alt.status}). Add Creators API keys for reliable ${m.domain} data.`, "http", alt.status);
+      throw alt;
+    });
   });
   return { list: parseAmazonSuggest(body), country, label: `${m.domain} search suggestions (public autocomplete)`, searchUrl: (kw) => `https://www.${m.domain}/s?k=${encodeURIComponent(kw)}` };
 }
@@ -115,10 +124,16 @@ export function parseEbaySuggest(body: string): string[] {
 }
 
 export async function ebaySuggest(query: string, country: string, opts: Opts): Promise<Suggest> {
-  const s = EBAY_SITES[country];
-  if (!s) throw new Unavailable(`eBay has no site for ${country}. Available: ${Object.keys(EBAY_SITES).join(", ")}.`);
+  // Countries without a local eBay site (e.g. India) buy on ebay.com, eBay's international site.
+  const local = EBAY_SITES[country];
+  const s = local ?? EBAY_SITES.US!;
   const body = await throttled("ebay", () => getText(`https://autosug.ebay.com/autosug?kwd=${encodeURIComponent(query)}&sId=${s.site}&_rs=1`, { ...opts, timeoutMs: 8000, retries: 1 }), opts.signal);
-  return { list: parseEbaySuggest(body), country, label: `${s.domain} search suggestions (public autocomplete)`, searchUrl: (kw) => `https://www.${s.domain}/sch/i.html?_nkw=${encodeURIComponent(kw)}` };
+  return {
+    list: parseEbaySuggest(body),
+    country: local ? country : "US",
+    label: local ? `${s.domain} search suggestions (public autocomplete)` : `ebay.com search suggestions (public autocomplete; eBay has no ${country} site, so these come from the international site)`,
+    searchUrl: (kw) => `https://www.${s.domain}/sch/i.html?_nkw=${encodeURIComponent(kw)}`,
+  };
 }
 
 // --- Google and YouTube -------------------------------------------------------------------
@@ -247,6 +262,113 @@ export const redditFallback: Fallback = {
   },
   async liveCheck(ctx) {
     await redditRss("product review", "30d", ctx);
+  },
+};
+
+// --- Flipkart search page -----------------------------------------------------------------
+
+type FlipkartCard = {
+  id?: string;
+  baseUrl?: string;
+  titles?: { title?: string; superTitle?: string };
+  rating?: { average?: number; count?: number };
+  pricing?: { finalPrice?: { value?: number; currency?: string } };
+  analyticsData?: { vertical?: string };
+};
+
+const FLIPKART_TTL_MS = 10 * 60_000;
+const flipkartCache = new Map<string, { at: number; html: string }>();
+
+/** Extracts the JSON object assigned to window.__INITIAL_STATE__ without evaluating any script. */
+export function extractInitialState(html: string): unknown {
+  const at = html.indexOf("window.__INITIAL_STATE__");
+  const start = at === -1 ? -1 : html.indexOf("{", at);
+  if (start === -1) return undefined;
+  let depth = 0;
+  for (let i = start; i < html.length; i++) {
+    const c = html[i];
+    if (c === '"') {
+      for (i++; i < html.length && html[i] !== '"'; i++) if (html[i] === "\\") i++;
+    } else if (c === "{") depth++;
+    else if (c === "}" && --depth === 0) {
+      try {
+        return JSON.parse(html.slice(start, i + 1));
+      } catch {
+        return undefined;
+      }
+    }
+  }
+  return undefined;
+}
+
+export function parseFlipkartSearch(html: string, fetchedAt: string): KeywordRecord[] {
+  const state = extractInitialState(html) as { pageDataV4?: unknown } | undefined;
+  if (!state?.pageDataV4) throw new ProviderHttpError("Flipkart search page format changed", "parse");
+  const cards: FlipkartCard[] = [];
+  const walk = (o: unknown) => {
+    if (!o || typeof o !== "object") return;
+    const v = (o as { productInfo?: { value?: FlipkartCard } }).productInfo?.value;
+    if (v) return void cards.push(v);
+    for (const k of Object.keys(o)) walk((o as Record<string, unknown>)[k]);
+  };
+  walk(state.pageDataV4);
+  const seen = new Set<string>();
+  return cards.flatMap((p) => {
+    const title = p.titles?.title?.replace(/\s+/g, " ").trim();
+    if (!p.id || !title || seen.has(p.id)) return [];
+    seen.add(p.id);
+    const category = isQuestion(title) ? ("question" as const) : ("related" as const);
+    const metrics: KeywordRecord["metrics"] = [];
+    if (typeof p.rating?.count === "number" && p.rating.count > 0) {
+      metrics.push({ key: "ratings", label: "Flipkart ratings", value: p.rating.count, unit: "ratings", kind: "engagement", definition: "Number of customer ratings on this product. A signal of past sales interest, not search volume." });
+    }
+    if (typeof p.rating?.average === "number" && p.rating.average > 0) {
+      metrics.push({ key: "rating", label: "Average rating", value: p.rating.average, unit: "stars", kind: "engagement", display: `${p.rating.average} / 5`, definition: "Average customer rating on Flipkart." });
+    }
+    const price = p.pricing?.finalPrice;
+    if (typeof price?.value === "number") {
+      metrics.push({ key: "price", label: "Price", value: price.value, unit: price.currency ?? "INR", kind: "absolute", display: `₹${price.value.toLocaleString("en-IN")}`, definition: "Flipkart price at fetch time. A product attribute, not demand." });
+    }
+    return [
+      {
+        id: recordId("flipkart", category, p.id),
+        keyword: title,
+        normalized: normalizeKeyword(title),
+        category,
+        provider: "flipkart",
+        method: "Product title from Flipkart's public search results page",
+        dataType: "observed" as const,
+        country: "IN",
+        sourceUrl: p.baseUrl ? `https://www.flipkart.com${p.baseUrl.startsWith("/") ? "" : "/"}${p.baseUrl}` : undefined,
+        sourceRecordId: p.id,
+        fetchedAt,
+        metrics,
+      },
+    ];
+  });
+}
+
+async function flipkartPage(query: string, ctx: Pick<ProviderContext, "fetchImpl" | "signal" | "now">): Promise<string> {
+  const url = `https://www.flipkart.com/search?q=${encodeURIComponent(query)}`;
+  const hit = flipkartCache.get(url);
+  if (hit && ctx.now.getTime() - hit.at < FLIPKART_TTL_MS) return hit.html;
+  if (!throttles.has("flipkart")) throttles.set("flipkart", createThrottle(2000));
+  const html = await throttles.get("flipkart")!(() => getText(url, { fetchImpl: ctx.fetchImpl, signal: ctx.signal, timeoutMs: 12_000, maxBytes: 4_000_000 }), ctx.signal);
+  flipkartCache.set(url, { at: ctx.now.getTime(), html });
+  return html;
+}
+
+export const flipkartFallback: Fallback = {
+  provides: ["Product titles shoppers see on Flipkart search, with ratings counts and prices (public search page, no key)"],
+  supports: { country: false, language: false, window: false },
+  async search(req, ctx) {
+    const records = parseFlipkartSearch(await flipkartPage(req.query, ctx), ctx.now.toISOString());
+    const note = req.country === "IN" ? "" : " Flipkart only sells in India, so these are Indian results.";
+    return { records, message: `${records.length} products from Flipkart search.${note}` };
+  },
+  async liveCheck(ctx) {
+    const records = parseFlipkartSearch(await flipkartPage("mobile", ctx), ctx.now.toISOString());
+    if (!records.length) throw new ProviderHttpError("Flipkart search page returned no products", "parse");
   },
 };
 

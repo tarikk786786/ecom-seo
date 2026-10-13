@@ -145,8 +145,19 @@ describe("keyless public sources", () => {
     expect(outcome.message).toBe("2 suggestions from amazon.co.uk search suggestions (public autocomplete).");
   });
 
-  it("explains an Amazon suggestion outage in plain language", async () => {
-    const f = mockFetch([[/completion\.amazon\.in/, () => new Response("bad gateway", { status: 502 })]]);
+  it("reads amazon.in suggestions through another completion host when amazon.in is down", async () => {
+    const f = mockFetch([
+      [/completion\.amazon\.in/, () => new Response("bad gateway", { status: 502 })],
+      [/completion\.amazon\.co\.uk.*mid=A21TJRUUN4KGV/, () => json({ suggestions: [{ value: "aashirvaad atta 5kg", type: "KEYWORD" }] })],
+    ]);
+    const { res, outcome } = await run(byId("amazon"), {}, f, { country: "IN" });
+    expect(outcome.status).toBe("ok");
+    expect(res.records[0]).toMatchObject({ keyword: "aashirvaad atta 5kg", country: "IN", sourceUrl: "https://www.amazon.in/s?k=aashirvaad%20atta%205kg" });
+    expect(outcome.message).toBe("1 suggestions from amazon.in search suggestions (public autocomplete).");
+  });
+
+  it("explains an Amazon suggestion outage in plain language when every host fails", async () => {
+    const f = mockFetch([[/completion\.amazon/, () => new Response("bad gateway", { status: 502 })]]);
     const { outcome } = await run(byId("amazon"), {}, f, { country: "IN" });
     expect(outcome.status).toBe("error");
     expect(outcome.message).toMatch(/amazon\.in search suggestions are not responding right now \(HTTP 502\)/);
@@ -159,13 +170,37 @@ describe("keyless public sources", () => {
     expect(f.calls.some((c) => /completion\.amazon/.test(c.url))).toBe(false);
   });
 
-  it("parses eBay's JSONP suggestions and refuses countries without an eBay site", async () => {
+  it("parses eBay's JSONP suggestions and uses the international site where eBay has no local one", async () => {
     expect(parseEbaySuggest('/**/vjo.AutoFill._do({"prefix":"a","res":{"sug":["air fryer oven","air fryer"]}})')).toEqual(["air fryer oven", "air fryer"]);
-    const f = mockFetch([]);
-    const { outcome } = await run(byId("ebay"), {}, f, { country: "IN" });
-    expect(outcome.status).toBe("empty");
-    expect(outcome.message).toMatch(/eBay has no site for IN/);
-    expect(f.calls).toHaveLength(0);
+    const f = mockFetch([[/autosug\.ebay\.com/, () => new Response('vjo.AutoFill._do({"res":{"sug":["air fryer oven"]}})')]]);
+    const { res, outcome } = await run(byId("ebay"), {}, f, { country: "IN" });
+    expect(f.calls[0]!.url).toMatch(/sId=0&/);
+    expect(outcome.status).toBe("ok");
+    expect(res.records[0]).toMatchObject({ keyword: "air fryer oven", country: "US", sourceUrl: "https://www.ebay.com/sch/i.html?_nkw=air%20fryer%20oven" });
+    expect(outcome.message).toMatch(/eBay has no IN site/);
+  });
+
+  it("reads Flipkart's public search page without credentials or running its scripts", async () => {
+    const state = { pageDataV4: { page: { data: { "10003": [{ widget: { data: { products: [
+      { productInfo: { value: { id: "AFR1", baseUrl: "/philips-air-fryer/p/itm1?pid=AFR1", titles: { title: "PHILIPS NA120/00 Air Fryer" }, rating: { average: 4.4, count: 21561 }, pricing: { finalPrice: { value: 6999, currency: "INR" } } } } },
+      { productInfo: { value: { id: "AFR1", titles: { title: "duplicate" } } } },
+      { productInfo: { value: { id: "AFR2", titles: { title: "Which air fryer is best?" } } } },
+    ] } } }] } } } };
+    const html = `<html><script>window.__INITIAL_STATE__ = ${JSON.stringify(state)};</script><script>alert("{")</script></html>`;
+    const f = mockFetch([[/flipkart\.com\/search\?q=air%20fryer/, () => new Response(html)]]);
+    const { res, outcome } = await run(byId("flipkart"), {}, f, { country: "IN" });
+    expect(outcome.status).toBe("ok");
+    expect(res.records.map((r) => [r.keyword, r.category])).toEqual([["PHILIPS NA120/00 Air Fryer", "related"], ["Which air fryer is best?", "question"]]);
+    expect(res.records[0]!.sourceUrl).toBe("https://www.flipkart.com/philips-air-fryer/p/itm1?pid=AFR1");
+    expect(res.records[0]!.metrics.map((m) => [m.key, m.kind, m.value])).toEqual([["ratings", "engagement", 21561], ["rating", "engagement", 4.4], ["price", "absolute", 6999]]);
+    expect(outcome.message).toBe("2 products from Flipkart search.");
+  });
+
+  it("reports a changed Flipkart page instead of returning nothing silently", async () => {
+    const f = mockFetch([[/flipkart\.com/, () => new Response("<html>captcha</html>")]]);
+    const { outcome } = await run(byId("flipkart"), {}, f, { query: "kettle" });
+    expect(outcome.status).toBe("error");
+    expect(outcome.message).toMatch(/Flipkart search page format changed/);
   });
 
   it("passes country and language to Google and YouTube suggestions", async () => {
