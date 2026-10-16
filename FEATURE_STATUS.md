@@ -20,12 +20,18 @@ Statuses: NOT STARTED, IN PROGRESS, IMPLEMENTED, TESTED, VERIFIED IN DEPLOYED EN
 | Email authentication (sign in/up/out, protected /account) | IMPLEMENTED | Unauthenticated /account redirect verified; Auth accepts the key; no test account was created |
 | API and health endpoint | IMPLEMENTED | /api/health/supabase, /api/keywords/search, /api/keywords/providers, /api/keywords/ai-expand |
 | Shared types and validation | IN PROGRESS | lib/keywords/types.ts; search request validation tested |
-| PostgreSQL schema and migrations | NOT STARTED | |
-| Authentication and tenant isolation | NOT STARTED | |
+| PostgreSQL schema and migrations | IMPLEMENTED | `database/migrations/001_ranking_foundation.sql` present; apply in Supabase SQL editor is owner-gated (not auto-run) |
+| Product catalog (CSV import/export, CRUD, search) | TESTED | `/products` + `/api/products*`; local JSON store; Vitest + smoke import of `docs/sample-products.csv` (3 products); typecheck/lint/test/build/secrets:scan passed 2026-10-16 |
+| Product–keyword mapping fields | IMPLEMENTED | primary + secondary on product records; join table in SQL for Phase 2+ sync |
+| Ranking observations storage | NOT STARTED | Table defined in migration only; no collectors |
+| Authentication and tenant isolation | NOT STARTED | Local store is single-tenant; Supabase RLS policies ready after migration |
 | Provider registry/capabilities | TESTED | lib/keywords/registry.ts with provides/not-provided/filter support per provider |
 | Google Trends integration | IN PROGRESS | Daily trending RSS live (rising searches, approx. traffic bucket); official API not available |
 | Google Ads keyword planning | BLOCKED | Adapter implemented and contract-tested (v25 ideas, volume, history, competition, bids, CPC); needs developer token (Basic access) + OAuth to go live |
-| Google Search Console | NOT STARTED | Requires authorized site access |
+| Google Search Console | IMPLEMENTED | Adapter + `/seo` + `/api/gsc/*`; CONNECTED only after live `sites.list`; live query BLOCKED until GSC_* credentials |
+| Product page HTML audit | TESTED | `/seo` + `/api/audits/page`; SSRF guards + Vitest; Lighthouse lab metrics not yet |
+| Product Ranking Intelligence PRD | IMPLEMENTED | docs/PRD_RANKING_INTELLIGENCE.md |
+| Repository assessment (Phase 0) | IMPLEMENTED | docs/REPOSITORY_ASSESSMENT.md |
 | YouTube integration | BLOCKED | Adapter implemented and contract-tested; needs YOUTUBE_API_KEY |
 | News/RSS/search providers | IN PROGRESS | Wikipedia, Stack Exchange, Hacker News live; GDELT news live (coverage timeline and headlines; intermittent 429s handled); Bing APIs retired |
 | Unified e-commerce search | NOT STARTED | |

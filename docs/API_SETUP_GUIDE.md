@@ -6,6 +6,23 @@ After editing `.env.local`, rebuild and restart (`npm run build --workspace apps
 
 None of these steps can be automated by the agent. Each one needs you to sign in, accept terms, or wait for approval.
 
+## Google Search Console (own-site queries, clicks, impressions, average position)
+
+Own verified properties only. This does not expose competitors’ private data.
+
+1. In Google Cloud Console, create or pick a project and enable the **Google Search Console API**.
+2. Create an OAuth client (Desktop or Web). Note the client ID and secret.
+3. Generate a refresh token for a Google account that has access to the Search Console property, using scope `https://www.googleapis.com/auth/webmasters.readonly` (OAuth Playground with your own client is fine for local setup).
+4. Set in `.env.local`:
+   - `GSC_CLIENT_ID`
+   - `GSC_CLIENT_SECRET`
+   - `GSC_REFRESH_TOKEN`
+   - `GSC_SITE_URL`: URL-prefix property (`https://www.example.com/`) or domain property (`sc-domain:example.com`)
+5. Open **SEO intelligence** (`/seo`). State becomes **CONNECTED** only after a live `sites.list` call succeeds and the configured property appears.
+6. Until credentials exist, the page shows an honest setup state and `/api/gsc/query` returns HTTP 503 with the missing variable names—never fabricated rows.
+
+Average position from Search Console is a property-level aggregate, not a personalized SERP rank for every user.
+
 ## Google Ads API (search volume, CPC, competition)
 
 1. Use a Google Ads **manager account** (MCC) and open *Admin → API Center*. Accept the API terms; this issues a developer token at Test Account or Explorer level.

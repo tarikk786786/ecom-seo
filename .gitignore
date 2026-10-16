@@ -30,3 +30,6 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Phase 1 local product persistence (server-side JSON store)
+/data/

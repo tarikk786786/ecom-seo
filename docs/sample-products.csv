@@ -1,0 +1,4 @@
+title,sku,marketplace,country,url,brand,category,primary_keyword,secondary_keywords,currency,price,availability
+Wireless ANC Earbuds,SKU-EAR-001,amazon,IN,https://www.amazon.in/dp/EXAMPLE001,Acme,Audio,wireless earbuds,bluetooth earbuds; noise cancelling earbuds,INR,2499,in_stock
+Stainless Steel Water Bottle 1L,SKU-BOT-002,flipkart,IN,https://www.flipkart.com/example-bottle,Hydra,Kitchen,steel water bottle,1 litre bottle; gym bottle,INR,699,in_stock
+Organic Cotton T-Shirt,SKU-TEE-003,shopify,US,https://example-store.myshopify.com/products/organic-tee,PlainCo,Apparel,organic cotton tshirt,mens tee; crew neck,USD,,unknown

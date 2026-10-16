@@ -6,6 +6,8 @@ import { useState } from "react";
 
 const LINKS = [
   { href: "/", label: "Keyword research" },
+  { href: "/products", label: "Products" },
+  { href: "/seo", label: "SEO intelligence" },
   { href: "/integrations", label: "Data sources" },
   { href: "/connect", label: "Connect accounts" },
   { href: "/account", label: "Account" },
@@ -17,7 +19,7 @@ function Brand() {
       <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-sky-500 to-emerald-500 text-sm font-bold text-zinc-950">ES</span>
       <span className="leading-tight">
         <span className="block text-sm font-semibold text-zinc-50">Ecom SEO</span>
-        <span className="block text-[11px] text-zinc-500">Ecommerce keyword research</span>
+        <span className="block text-[11px] text-zinc-500">Ranking & keyword intelligence</span>
       </span>
     </Link>
   );

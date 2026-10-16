@@ -78,3 +78,20 @@
 - Replaced the "Trend Intelligence AI" subtitle with "Keyword & trend research", and tightened the workspace copy and empty states.
 - The search-volume card now shows real Google Ads figures (average monthly searches, CPC, competition) when available, instead of a fixed placeholder.
 - Providers identify their seed record, so each summary card reads from the correct source.
+
+## 2026-10-16 — Phase 0 assessment + Phase 1 product foundation
+
+- Inspected existing Next.js/Supabase keyword research app; did not rewrite from scratch.
+- Added Ranking Intelligence docs: REPOSITORY_ASSESSMENT, PRD_RANKING_INTELLIGENCE, DATA_MODEL; sample CSV.
+- Added `database/migrations/001_ranking_foundation.sql` (products, keywords, product_keywords, ranking_observations + RLS).
+- Implemented `lib/products/*`, `/products` UI, product APIs (list/create/update/delete/import/export), local JSON persistence under `data/` (gitignored).
+- Added Vitest coverage for validation, CSV, dedupe, and query helpers.
+- Keyword research workspace left intact; nav gained Products link.
+
+## 2026-10-16 — Phase 2 start: Search Console + page audits
+
+- Added `lib/gsc` (config, OAuth token cache, sites.list, searchAnalytics.query) and `/api/gsc/status` + `/api/gsc/query`.
+- Added SSRF-safe `lib/audits` HTML auditor and `/api/audits/page`.
+- UI `/seo` with honest GSC setup state and audit findings (evidence + recommendations).
+- Documented `GSC_*` env vars; Vitest coverage for GSC helpers and audit/SSRF guards.
+- Live Search Console still blocked without owner credentials.

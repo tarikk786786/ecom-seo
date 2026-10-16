@@ -1,6 +1,6 @@
 # Ecom SEO — Trend Intelligence AI
 
-A modular project for a Chrome extension and web platform for verified trend discovery, SEO keyword research, and e-commerce product intelligence.
+A modular project for verified trend discovery, SEO keyword research, product portfolio management, and (in progress) multi-platform product ranking intelligence — without fabricating rankings or search volume.
 
 ## Development workflow
 
@@ -50,6 +50,19 @@ npm run dev                  # http://localhost:3000
 npm run check                # typecheck, lint, unit tests, production build
 npm run secrets:scan
 ```
+
+### Product catalog (Phase 1)
+
+- UI: [http://localhost:3000/products](http://localhost:3000/products)
+- Sample CSV: `docs/sample-products.csv`
+- Postgres schema (apply manually in Supabase when ready): `database/migrations/001_ranking_foundation.sql`
+- Default storage: local server file `data/products-store.json` (gitignored). Ranking observations are not collected yet.
+
+### SEO intelligence (Phase 2 start)
+
+- UI: [http://localhost:3000/seo](http://localhost:3000/seo)
+- Google Search Console: set `GSC_*` in `.env.local` (see `docs/API_SETUP_GUIDE.md`). Until then the page shows a setup state—no fake query rows.
+- Product page audit: paste a public https listing URL; private/network-local targets are blocked.
 
 ## Project status
 

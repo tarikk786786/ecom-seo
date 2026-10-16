@@ -67,8 +67,23 @@
 - AI expansion needs `OPENAI_API_KEY` on the server.
 - `public.todos` does not exist in the Supabase project; no table was created.
 
+## Cycle 2026-10-16 — Phase 0 audit + Phase 1 product foundation
+- Cloned / inspected `ecom-seo` into local workspace; documented assessment and Ranking Intelligence PRD overlay without rewriting the keyword research app.
+- Added versioned SQL migration for products/keywords/mappings/ranking_observations with RLS.
+- Implemented local product repository, CSV import/export, `/products` UI, and product APIs.
+- Sample CSV: `docs/sample-products.csv`.
+- Next: verify with `npm run check`; then Phase 2 (Search Console) only with authorized credentials; optionally apply SQL migration and wire Supabase product persistence.
+
+## Cycle 2026-10-16 — Phase 2 start (GSC + page audits)
+- Search Console client with honest NOT_CONFIGURED/ACCESS_REQUIRED/CONNECTED states; query API returns 503 setup payload when credentials missing.
+- Static product-page auditor with SSRF protections; findings include evidence + recommendations (no fabricated rankings).
+- UI at `/seo`; setup documented in `docs/API_SETUP_GUIDE.md` and `.env.example`.
+- Live GSC verification remains blocked until the account owner supplies `GSC_*` credentials.
+
 ## Next recommended task
-Add Supabase persistence for saved searches and keyword lists (migration with owner-only RLS, applied only with the user's approval), then `GenerateKeywordHistoricalMetrics` for saved lists. In parallel, add the Google Ads and YouTube credentials (see `docs/API_SETUP_GUIDE.md`) and run a live search to move those providers to CONNECTED.
+1. Add `GSC_*` credentials and verify CONNECTED + a real `searchAnalytics/query` on an owned property.
+2. Persist GSC rows into `ranking_observations` / keyword tables after Supabase migration is applied.
+3. Optional: Lighthouse integration behind a clearly labelled lab-metrics path; Shopify/Amazon CSV→product sync.
 
 
 ## API sourcing catalog

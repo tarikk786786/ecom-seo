@@ -56,6 +56,19 @@ No framework should be installed until the repository is audited for existing co
 - API routes run on the server only; provider credentials (when added) stay in server env. Client components under `components/keywords/` receive serialisable provider descriptors without configuration values.
 - Persistence today: browser localStorage for settings, history, saved searches and lists. Account sync is planned as Supabase tables with owner-only RLS.
 
+## Implemented product ranking foundation (Phase 1)
+- PRD overlay: `docs/PRD_RANKING_INTELLIGENCE.md`; assessment: `docs/REPOSITORY_ASSESSMENT.md`; model notes: `docs/DATA_MODEL.md`.
+- SQL migration (manual apply): `database/migrations/001_ranking_foundation.sql` — products, keywords, product_keywords, ranking_observations + owner RLS.
+- `lib/products/`: types, validation (http(s) URLs only, null prices for unknown), CSV parse/export, query helpers, local JSON store (`data/products-store.json`, gitignored), repository.
+- UI: `/products` with search, marketplace filter, pagination, create, delete, CSV import, CSV/JSON export.
+- API: `GET/POST /api/products`, `GET/PATCH/DELETE /api/products/[id]`, `POST /api/products/import`, `GET /api/products/export`.
+- Default persistence is local file store so Phase 1 works without applying remote migrations. `PRODUCTS_PERSISTENCE=supabase` is reserved until the Supabase repository path is completed after the migration is applied.
+
+## Implemented SEO intelligence (Phase 2 start)
+- `lib/gsc/`: OAuth refresh-token client for Search Console `sites.list` + `searchAnalytics/query`; status never CONNECTED without a live authorised call.
+- `lib/audits/`: SSRF-safe URL checks (block private/link-local/metadata hosts) + static HTML listing audit (title, meta, H1, canonical, robots, viewport, alt, Product JSON-LD).
+- UI: `/seo`. APIs: `/api/gsc/status`, `/api/gsc/query`, `/api/audits/page`.
+
 ## Credentialed provider adapters
 - `lib/keywords/http.ts` is the only network layer for providers: `requestText`/`requestJson` (GET/POST, timeout, abort, size cap, retries for network/5xx only), `ProviderHttpError` categories (`auth` maps to ACCESS_REQUIRED, `rate_limited` to RATE_LIMITED), `errorDetail` hooks that extract short provider codes, `redactSecrets` applied to every message returned to the browser, `cachedToken` (in-memory OAuth tokens, refreshed 60 s early), `createThrottle` (provider-mandated pacing).
 - Adapters: `google-ads.ts` (OAuth refresh → `customer.currency_code` lookup → `:generateKeywordIdeas`, 1 QPS throttle), `youtube.ts` (`search.list` + `videos.list`; status checks use `videos.list` only), `amazon-creators.ts` (LwA client credentials by credential version → `searchItems`), `flipkart.ts`, `ebay.ts` (application token, marketplace header per country), `etsy.ts`, `gdelt.ts` (single `timelinevolinfo` call, 5.2 s pacing, 60 s cooldown after 429).
